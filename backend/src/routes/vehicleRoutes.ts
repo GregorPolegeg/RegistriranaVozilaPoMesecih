@@ -121,7 +121,7 @@ router.post(
       maxSpeed: number;
       fuelType: string;
       kilometers: number;
-      status: string;
+      status: string; //todo
       userAge: number;
       userLegalStatus: string;
       userGender: string;
