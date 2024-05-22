@@ -7,16 +7,39 @@ const router = Router();
 router.post(
   '/add',
   [
-    body('userId').optional().isInt(),
-    body('firstRegDate').isDate(),
-    body('firstRegDateSlo').isDate(),
-    body('brand').isString(),
-    body('vin').isString(),
-    body('maxSpeed').isFloat(),
-    body('fuelTypeDesc').isString(),
-    body('kilometersMiles').isFloat(),
-    body('locationLng').optional().isFloat(),
-    body('locationLat').optional().isFloat(),
+    body('userId')
+    .optional()
+    .isInt()
+    .withMessage('User ID must be an integer.'),
+  body('firstRegDate')
+    .isDate()
+    .withMessage('First registration date must be a valid date.'),
+  body('firstRegDateSlo')
+    .isDate()
+    .withMessage('First registration date (Slo) must be a valid date.'),
+  body('brand')
+    .isString()
+    .withMessage('Brand must be a string.'),
+  body('vin')
+    .isString()
+    .withMessage('VIN must be a string.'),
+  body('maxSpeed')
+    .isFloat()
+    .withMessage('Max speed must be a float.'),
+  body('fuelTypeDesc')
+    .isString()
+    .withMessage('Fuel type description must be a string.'),
+  body('kilometersMiles')
+    .isFloat()
+    .withMessage('Kilometers/Miles must be a float.'),
+  body('locationLng')
+    .optional()
+    .isFloat()
+    .withMessage('Location longitude must be a float if provided.'),
+  body('locationLat')
+    .optional()
+    .isFloat()
+    .withMessage('Location latitude must be a float if provided.')  
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
