@@ -14,10 +14,10 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Accelerations {
+model Acceleration {
   id        Int      @id @default(autoincrement())
   vehicleId Int
-  vehicle   Vehicles  @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
   startTime DateTime @default(now())
   endTime   DateTime @default(now())
   distance  Float
@@ -25,10 +25,10 @@ model Accelerations {
   @@index([vehicleId])
 }
 
-model Trips {
+model Trip {
   id        Int      @id @default(autoincrement())
   vehicleId Int
-  vehicle   Vehicles  @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
   startTime DateTime @default(now())
   endTime   DateTime @default(now())
   distance  Float
@@ -36,7 +36,7 @@ model Trips {
   @@index([vehicleId])
 }
 
-model Users {
+model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   firstName String
@@ -44,13 +44,13 @@ model Users {
   password  String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
-  vehicles  Vehicles[]
+  vehicles  Vehicle[]
 }
 
-model Vehicles {
+model Vehicle {
   id              Int             @id @default(autoincrement())
   userId          Int?
-  user            Users?           @relation(fields: [userId], references: [id])
+  user            User?           @relation(fields: [userId], references: [id])
   firstRegDate    DateTime
   firstRegDateSlo DateTime
   brand           String
@@ -81,8 +81,8 @@ model Vehicles {
   bodyType String
   locationLng     Float?
   locationLat     Float?
-  accelerations   Accelerations[]
-  trips           Trips[]
+  accelerations   Acceleration[]
+  trips           Trip[]
 
   @@unique([vin])
   @@index([userId])
