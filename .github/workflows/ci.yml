@@ -20,12 +20,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Load .env file
-        uses: xom9ikk/dotenv@v2
-        with:
-          path: backend
-          mode: build
-
       - name: Install dependencies
         run: |
           npm ci
