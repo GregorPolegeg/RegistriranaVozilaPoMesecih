@@ -2,6 +2,7 @@ name: Build Backend
 
 on:
   pull_request:
+    types: [opened, edited, reopened, synchronize, closed, labeled, unlabeled, review_requested, review_request_removed, ready_for_review, locked, unlocked, assigned, unassigned]
     branches:
       - master
 
