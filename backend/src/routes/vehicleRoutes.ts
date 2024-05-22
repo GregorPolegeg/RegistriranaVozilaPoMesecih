@@ -63,12 +63,12 @@ router.post(
     } = req.body;
 
     try {
-      const existingVehicle = await prisma.vehicles.findUnique({
+      const existingVehicle = await prisma.vehicle.findUnique({
         where: {vin: vin},
       });
 
       if (existingVehicle) {
-        const updatedVehicle = await prisma.vehicles.update({
+        const updatedVehicle = await prisma.vehicle.update({
           where: {vin},
           data: {
             userId: userId ?? existingVehicle.userId,
@@ -82,7 +82,7 @@ router.post(
         });
         return res.json(updatedVehicle);
       } else {
-        const newVehicle = await prisma.vehicles.create({
+        const newVehicle = await prisma.vehicle.create({
           data: {
             userId,
             firstRegDate: new Date(firstRegDate),
@@ -106,16 +106,16 @@ router.post(
 router.get("/list", async (req: Request, res: Response) => {
   try {
     const {limit, offset} = req.query;
-    let vehicles;
+    let vehicle;
     if (limit && offset) {
-      vehicles = await prisma.vehicles.findMany({
+      vehicle = await prisma.vehicle.findMany({
         take: Number(limit),
         skip: Number(offset),
       });
     } else {
-      vehicles = await prisma.vehicles.findMany();
+      vehicle = await prisma.vehicle.findMany();
     }
-    return res.json(vehicles);
+    return res.json(vehicle);
   } catch (error) {
     console.error(error);
     return res.status(500).json({error: "Internal Server Error"});
