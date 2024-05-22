@@ -1,13 +1,13 @@
-import express from 'express';
-import userRoutes from './src/prisma/routes/userRoutes';
-import vehicleRoutes from './src/prisma/routes/vehicleRoutes';
+import express from "express";
+import userRoutes from "./src/prisma/routes/userRoutes";
+import vehicleRoutes from "./src/prisma/routes/vehicleRoutes";
 
 const app = express();
 
 app.use(express.json());
 
-app.use('/users', userRoutes);
-app.use('/vehicles', vehicleRoutes);
+app.use("/users", userRoutes);
+app.use("/vehicles", vehicleRoutes);
 
 const PORT = process.env.PORT || 3001;
 
