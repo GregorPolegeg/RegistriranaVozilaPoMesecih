@@ -34,5 +34,5 @@ jobs:
       - name: Start server
         run: |
           npm start &
-          sleep 3 # Wait for server to start
+          sleep 3 
           curl -I http://localhost:3001 # Test server health
