@@ -8,8 +8,8 @@ router.post(
   '/add',
   [
     body('userId').optional().isInt(),
-    body('firstRegDate').isISO8601(),
-    body('firstRegDateSlo').isISO8601(),
+    body('firstRegDate').isDate(),
+    body('firstRegDateSlo').isDate(),
     body('brand').isString(),
     body('vin').isString(),
     body('maxSpeed').isFloat(),
@@ -23,7 +23,6 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const {
       userId,
       firstRegDate,
