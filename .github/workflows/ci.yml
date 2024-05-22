@@ -1,0 +1,24 @@
+name: Build Backend
+on:
+  pull_request: # Run on pull requests to master
+    branches:
+      - master
+    types:
+      - labeled 
+jobs:
+  build:
+    if: ${{ github.event.label.name == 'ready' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v2
+        with:
+          path: backend
+          mode: build
+      - run: npm run start
+        env:
+          IS_CI: "yes
