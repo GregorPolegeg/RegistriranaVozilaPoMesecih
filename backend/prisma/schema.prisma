@@ -9,15 +9,15 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model Acceleration {
+model Accelerations {
   id        Int      @id @default(autoincrement())
   vehicleId Int
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicles  @relation(fields: [vehicleId], references: [id])
   startTime DateTime @default(now())
   endTime   DateTime @default(now())
   distance  Float
@@ -25,10 +25,10 @@ model Acceleration {
   @@index([vehicleId])
 }
 
-model TripTravelled {
+model Trips {
   id        Int      @id @default(autoincrement())
   vehicleId Int
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicles  @relation(fields: [vehicleId], references: [id])
   startTime DateTime @default(now())
   endTime   DateTime @default(now())
   distance  Float
@@ -36,21 +36,21 @@ model TripTravelled {
   @@index([vehicleId])
 }
 
-model User {
+model Users {
   id        Int       @id @default(autoincrement())
   email     String    @unique
-  name      String?
-  surname   String?
-  password  String?
+  firstName String
+  lastName  String
+  password  String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
-  vehicles  Vehicle[]
+  vehicles  Vehicles[]
 }
 
-model Vehicle {
+model Vehicles {
   id              Int             @id @default(autoincrement())
   userId          Int?
-  user            User?           @relation(fields: [userId], references: [id])
+  user            Users?           @relation(fields: [userId], references: [id])
   firstRegDate    DateTime
   firstRegDateSlo DateTime
   brand           String
@@ -60,8 +60,8 @@ model Vehicle {
   kilometersMiles Float
   locationLng     Float?
   locationLat     Float?
-  accelerations   Acceleration[]
-  trips           TripTravelled[]
+  accelerations   Accelerations[]
+  trips           Trips[]
 
   @@unique([vin])
   @@index([userId])

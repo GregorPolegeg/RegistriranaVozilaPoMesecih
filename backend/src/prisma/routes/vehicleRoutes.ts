@@ -48,12 +48,12 @@ router.post(
     } = req.body;
 
     try {
-      const existingVehicle = await prisma.vehicle.findUnique({
+      const existingVehicle = await prisma.vehicles.findUnique({
         where: { vin: vin },
       });
 
       if (existingVehicle) {
-        const updatedVehicle = await prisma.vehicle.update({
+        const updatedVehicle = await prisma.vehicles.update({
           where: { vin },
           data: {
             userId: userId ?? existingVehicle.userId,
@@ -69,7 +69,7 @@ router.post(
         });
         return res.json(updatedVehicle);
       } else {
-        const newVehicle = await prisma.vehicle.create({
+        const newVehicle = await prisma.vehicles.create({
           data: {
             userId,
             firstRegDate: new Date(firstRegDate),
@@ -97,12 +97,12 @@ router.get('/list', async (req: Request, res: Response) => {
     const { limit, offset } = req.query;
     let vehicles;
     if (limit && offset) {
-      vehicles = await prisma.vehicle.findMany({
+      vehicles = await prisma.vehicles.findMany({
         take: Number(limit),
         skip: Number(offset),
       });
     } else {
-      vehicles = await prisma.vehicle.findMany();
+      vehicles = await prisma.vehicles.findMany();
     }
     return res.json(vehicles);
   } catch (error) {
