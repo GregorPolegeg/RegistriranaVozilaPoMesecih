@@ -1,6 +1,6 @@
-import { Router, Request, Response } from "express";
+import {Router, Request, Response} from "express";
 import prisma from "../prisma/prisma";
-import { body, validationResult } from "express-validator";
+import {body, validationResult} from "express-validator";
 
 const router = Router();
 
@@ -30,9 +30,6 @@ router.post(
     body("userLegalStatus")
       .isString()
       .withMessage("User legal status must be a string."),
-    body("userGender")
-      .isString()
-      .withMessage("User gender must be a string."),
     body("userIsOwner")
       .isString()
       .withMessage("User ownership status must be a string."),
@@ -44,25 +41,25 @@ router.post(
     body("ownerLegalStatus")
       .isString()
       .withMessage("Owner legal status must be a string."),
-    body("ownerGender")
-      .isString()
-      .withMessage("Owner gender must be a string."),
     body("vehicleCategory")
       .isString()
       .withMessage("Vehicle category must be a string."),
-    body("envLabel").isString().withMessage("Environmental label must be a string."),
+    body("envLabel")
+      .isString()
+      .withMessage("Environmental label must be a string."),
     body("originCountry")
       .isString()
       .withMessage("Origin country must be a string."),
     body("weight").isInt().withMessage("Weight must be an integer."),
-    body("nominalPower").isInt().withMessage("Nominal power must be an integer."),
+    body("nominalPower")
+      .isInt()
+      .withMessage("Nominal power must be an integer."),
     body("engineDisplacement")
       .isInt()
       .withMessage("Engine displacement must be an integer."),
     body("nominalEngineSpeed")
       .isInt()
       .withMessage("Nominal engine speed must be an integer."),
-    body("engineType").isString().withMessage("Engine type must be a string."),
     body("color").isString().withMessage("Color must be a string."),
     body("bodyType").isString().withMessage("Body type must be a string."),
     body("locationLng")
@@ -77,7 +74,7 @@ router.post(
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({errors: errors.array()});
     }
     const {
       userId,
@@ -92,13 +89,11 @@ router.post(
       status,
       userAge,
       userLegalStatus,
-      userGender,
       userIsOwner,
       userCity,
       userMunicipality,
       ownerAge,
       ownerLegalStatus,
-      ownerGender,
       vehicleCategory,
       envLabel,
       originCountry,
@@ -106,7 +101,6 @@ router.post(
       nominalPower,
       engineDisplacement,
       nominalEngineSpeed,
-      engineType,
       color,
       bodyType,
       locationLng,
@@ -124,13 +118,11 @@ router.post(
       status: string;
       userAge: number;
       userLegalStatus: string;
-      userGender: string;
       userIsOwner: string;
       userCity: string;
       userMunicipality: string;
       ownerAge: number;
       ownerLegalStatus: string;
-      ownerGender: string;
       vehicleCategory: string;
       envLabel: string;
       originCountry: string;
@@ -138,7 +130,6 @@ router.post(
       nominalPower: number;
       engineDisplacement: number;
       nominalEngineSpeed: number;
-      engineType: string;
       color: string;
       bodyType: string;
       locationLng?: number;
@@ -147,12 +138,12 @@ router.post(
 
     try {
       const existingVehicle = await prisma.vehicle.findUnique({
-        where: { vin: vin },
+        where: {vin: vin},
       });
 
       if (existingVehicle) {
         const updatedVehicle = await prisma.vehicle.update({
-          where: { vin },
+          where: {vin},
           data: {
             userId: userId ?? existingVehicle.userId,
             firstRegDate: new Date(firstRegDate),
@@ -165,13 +156,11 @@ router.post(
             status,
             userAge,
             userLegalStatus,
-            userGender,
             userIsOwner,
             userCity,
             userMunicipality,
             ownerAge,
             ownerLegalStatus,
-            ownerGender,
             vehicleCategory,
             envLabel,
             originCountry,
@@ -179,7 +168,6 @@ router.post(
             nominalPower,
             engineDisplacement,
             nominalEngineSpeed,
-            engineType,
             color,
             bodyType,
             locationLng,
@@ -202,13 +190,11 @@ router.post(
             status,
             userAge,
             userLegalStatus,
-            userGender,
             userIsOwner,
             userCity,
             userMunicipality,
             ownerAge,
             ownerLegalStatus,
-            ownerGender,
             vehicleCategory,
             envLabel,
             originCountry,
@@ -216,7 +202,6 @@ router.post(
             nominalPower,
             engineDisplacement,
             nominalEngineSpeed,
-            engineType,
             color,
             bodyType,
             locationLng,
@@ -227,14 +212,14 @@ router.post(
       }
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({error: "Internal Server Error"});
     }
   }
 );
 
 router.get("/list", async (req: Request, res: Response) => {
   try {
-    const { limit, offset } = req.query;
+    const {limit, offset} = req.query;
     let vehicles;
     if (limit && offset) {
       vehicles = await prisma.vehicle.findMany({
@@ -247,7 +232,7 @@ router.get("/list", async (req: Request, res: Response) => {
     return res.json(vehicles);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({error: "Internal Server Error"});
   }
 });
 

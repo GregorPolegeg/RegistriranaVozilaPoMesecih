@@ -62,13 +62,11 @@ model Vehicle {
   status          String
   userAge         Int
   userLegalStatus String
-  userGender      String
   userIsOwner     String
   userCity        String
   userMunicipality String
   ownerAge      Int
   ownerLegalStatus String
-  ownerGender String
   vehicleCategory String
   envLabel String
   originCountry String
@@ -76,7 +74,6 @@ model Vehicle {
   nominalPower Int
   engineDisplacement Int
   nominalEngineSpeed Int
-  engineType String
   color String
   bodyType String
   locationLng     Float?
