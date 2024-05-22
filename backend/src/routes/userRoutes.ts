@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import prisma from '../prisma';
+import prisma from '../prisma/prisma';
 import { body, validationResult } from 'express-validator';
 
 const router = Router();

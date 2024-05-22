@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import prisma from "../prisma";
 import { body, validationResult } from "express-validator";
+import prisma from "../prisma/prisma";
 
 const router = Router();
 
