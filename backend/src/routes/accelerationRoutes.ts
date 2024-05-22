@@ -4,7 +4,6 @@ import prisma from "../prisma/prisma";
 
 const router = Router();
 
-// Validation and Error Handling Middleware
 const handleValidationErrors = (
   req: Request,
   res: Response,
