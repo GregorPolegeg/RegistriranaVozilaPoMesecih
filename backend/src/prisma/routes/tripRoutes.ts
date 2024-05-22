@@ -9,7 +9,7 @@ router.post('/start', async (req: Request, res: Response) => {
   const { vehicleId } = req.body;
 
   try {
-    const newTrip = await prisma.tripTravelled.create({
+    const newTrip = await prisma.trips.create({
       data: { vehicleId, 
       distance: 0
     },
@@ -27,7 +27,7 @@ router.post('/finish', async (req: Request, res: Response) => {
   const { id, endTime, distance } = req.body;
 
   try {
-    const updatedTrip = await prisma.tripTravelled.update({
+    const updatedTrip = await prisma.trips.update({
       where: { id: Number(id) },
       data: { endTime, distance },
     });
@@ -44,7 +44,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
-    const trips = await prisma.tripTravelled.findMany({
+    const trips = await prisma.trips.findMany({
       where: {
         vehicle: { userId: Number(userId) },
         NOT: { distance: 0 }, // Filter out trips with distance equal to 0

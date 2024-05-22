@@ -19,7 +19,7 @@ router.post(
       return res.status(500).json({ error: "No vehicle ID" });
     } else {
       try {
-        const newAcceleration = await prisma.acceleration.create({
+        const newAcceleration = await prisma.accelerations.create({
           data: {
             vehicleId,
             distance: 0,
@@ -48,7 +48,7 @@ router.put(
     const { endTime, distance } = req.body;
 
     try {
-      const updatedAcceleration = await prisma.acceleration.update({
+      const updatedAcceleration = await prisma.accelerations.update({
         where: { id: Number(id) },
         data: {
           endTime: new Date(endTime),
@@ -67,7 +67,7 @@ router.put(
 router.get("/user/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;
   try {
-    const accelerations = await prisma.acceleration.findMany({
+    const accelerations = await prisma.accelerations.findMany({
       where: {
         vehicle: { userId: Number(userId) },
         NOT: { distance: 0 },

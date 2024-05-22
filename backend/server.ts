@@ -6,8 +6,8 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/user', userRoutes);
-app.use('/vehicle', vehicleRoutes);
+app.use('/users', userRoutes);
+app.use('/vehicles', vehicleRoutes);
 
 const PORT = process.env.PORT || 3001;
 
