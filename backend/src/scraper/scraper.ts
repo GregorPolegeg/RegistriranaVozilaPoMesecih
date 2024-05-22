@@ -13,7 +13,7 @@ const vehicleKeys = [
   "conformityCert",
   "statusDate",
   "statusID",
-  "statusDesc",
+  "status",
   "firstRegUnit",
   "firstRegPlateArea",
   "firstRegPlateType",
@@ -184,16 +184,33 @@ const sendPostRequest = async (data: VehicleData) => {
       firstRegDateSlo: formattedFirstRegDateSLO,
       brand: data.brand,
       vin: data.vin,
-      maxSpeed: data.maxSpeed ? parseFloat(data.maxSpeed) : 0,
-      fuelTypeDesc: data.fuelTypeDesc,
-      kilometersMiles: data.kilometersMiles
-        ? parseFloat(data.kilometersMiles)
-        : 0,
+      maxSpeed: Number(data.maxSpeed),
+      fuelType: data.fuelTypeDesc,
+      kilometers: Number(data.kilometersMiles),
+      model: data.commercialDesignation,
+      status: data.status,
+      userAge: Number(data.userAge),
+      userLegalStatus: data.userLegalStatus,
+      userIsOwner: data.userIsOwner,
+      userCity: data.userRegAuthDesc,
+      userMunicipality: data.userMunicipalityDesc,
+      ownerAge: Number(data.ownerAge),
+      ownerLegalStatus: data.ownerLegalStatus,
+      vehicleCategory: data.vehicleCategoryDesc,
+      envLabel: data.envLabel,
+      originCountry: data.countryDesc,
+      weight: Number(data.vehicleWeight),
+      nominalPower: Number(data.nominalPower),
+      engineDisplacement: Number(data.engineDisplacement),
+      nominalEngineSpeed: Number(data.nominalEngineSpeed),
+      engineType: data.engineType,
+      color: data.vehicleColorDesc,
+      bodyType: data.bodyTypeDesc,
     };
 
     console.log("Sending data:", sendBody);
 
-    const response = await fetch("http://213.161.9.83:3001/vehicle/add", {
+    const response = await fetch("http://localhost:3001/vehicles/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -237,7 +254,6 @@ const downloadAndParseZip = async (url: string) => {
               columns: vehicleKeys.slice(),
               skip_empty_lines: true,
               delimiter: ";",
-              from_line: 2,
             }),
             async function* (source) {
               for await (const record of source) {
@@ -248,7 +264,6 @@ const downloadAndParseZip = async (url: string) => {
               for await (const record of records) {
                 // here send post request to  http://213.161.9.83:3001/vehicle/add with this data as body
                 const vehicleData: VehicleData = record as VehicleData;
-                console.log(record);
                 await sendPostRequest(vehicleData);
               }
             }
