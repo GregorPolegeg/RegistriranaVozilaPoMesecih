@@ -18,8 +18,8 @@ model Acceleration {
   id        Int      @id @default(autoincrement())
   vehicleId Int
   vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
-  startTime DateTime
-  endTime   DateTime
+  startTime DateTime @default(now())
+  endTime   DateTime @default(now())
   distance  Float
 
   @@index([vehicleId])
@@ -30,7 +30,7 @@ model TripTravelled {
   vehicleId Int
   vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
   startTime DateTime @default(now())
-  endTime   DateTime
+  endTime   DateTime @default(now())
   distance  Float
 
   @@index([vehicleId])

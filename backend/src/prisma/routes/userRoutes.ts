@@ -3,7 +3,7 @@ import prisma from '../prisma';
 
 const router = Router();
 
-router.post('/add', async (req, res) => {
+router.post('/create', async (req, res) => {
   const { name, email } = req.body;
 
   try {
