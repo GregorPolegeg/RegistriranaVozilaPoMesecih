@@ -1,8 +1,8 @@
 import express from "express";
-import userRoutes from "./src/prisma/routes/userRoutes";
-import vehicleRoutes from "./src/prisma/routes/vehicleRoutes";
-import accelerationRoutes from "./src/prisma/routes/accelerationRoutes";
-import tripRoutes from "./src/prisma/routes/tripRoutes";
+import userRoutes from "./src/routes/userRoutes";
+import vehicleRoutes from "./src/routes/vehicleRoutes";
+import accelerationRoutes from "./src/routes/accelerationRoutes";
+import tripRoutes from "./src/routes/tripRoutes";
 
 const app = express();
 
