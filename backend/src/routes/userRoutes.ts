@@ -86,7 +86,7 @@ router.post(
   }
 );
 
-router.get("/list", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const user = await prisma.user.findMany();
     res.json(user);

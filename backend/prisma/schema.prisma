@@ -70,10 +70,10 @@ model Vehicle {
   vehicleCategory String
   envLabel String
   originCountry String
-  weight Int
-  nominalPower Int
-  engineDisplacement Int
-  nominalEngineSpeed Int
+  weight Float
+  nominalPower Float
+  engineDisplacement Float
+  nominalEngineSpeed Float
   color String
   bodyType String
   locationLng     Float?
