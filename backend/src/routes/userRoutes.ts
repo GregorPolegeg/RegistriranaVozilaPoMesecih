@@ -1,6 +1,6 @@
-import {Router, Request, Response} from "express";
+import {Router, Request, Response, NextFunction} from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
 import prisma from "../prisma/prisma";
 import {body, validationResult} from "express-validator";
 
@@ -19,7 +19,11 @@ router.post(
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors.array()});
+      const errorMessages = errors
+        .array()
+        .map((error) => error.msg)
+        .join(", ");
+      return res.status(400).json({error: errorMessages});
     }
 
     const {firstName, lastName, email, password} = req.body;
@@ -82,7 +86,7 @@ router.post(
   }
 );
 
-router.get("/", async (req, res) => {
+router.get("/list", async (req, res) => {
   try {
     const user = await prisma.user.findMany();
     res.json(user);
@@ -91,5 +95,58 @@ router.get("/", async (req, res) => {
     res.status(400).json({error: "Could not fetch user"});
   }
 });
+
+interface AuthenticatedRequest extends Request {
+  userId?: number;
+}
+
+// Type guard to check if the decoded token is a JwtPayload
+function isJwtPayload(decoded: unknown): decoded is JwtPayload {
+  return typeof decoded === "object" && decoded !== null && "userId" in decoded;
+}
+
+// Middleware to authenticate and extract userId from token
+const authenticateToken = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, "your_jwt_secret_key", (err, decoded) => {
+    if (err) return res.sendStatus(403);
+
+    if (isJwtPayload(decoded)) {
+      req.userId = decoded.userId;
+      next();
+    } else {
+      res.sendStatus(403);
+    }
+  });
+};
+
+router.get(
+  "/profile",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {id: req.userId},
+      });
+
+      if (!user) {
+        return res.status(404).json({error: "User not found"});
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({error: "Could not fetch user"});
+    }
+  }
+);
 
 export default router;
