@@ -34,7 +34,12 @@ router.post(
           password: hashedPassword,
         },
       });
-      res.json({message: "User successfully created"});
+
+      const token = jwt.sign({userId: newUser.id}, "your_jwt_secret_key", {
+        expiresIn: "1h",
+      });
+
+      res.status(201).json({message: "User successfully created", token: token});
     } catch (error) {
       console.error(error);
       res.status(400).json({error: "User could not be created"});

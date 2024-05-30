@@ -35,4 +35,4 @@ jobs:
         run: |
           npm start &
           sleep 3 
-          curl -I http://localhost:3001 # Test server health
+          curl -I ${config.apiBaseUrl} # Test server health
