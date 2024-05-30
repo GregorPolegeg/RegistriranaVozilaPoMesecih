@@ -16,6 +16,7 @@
     "axios": "^1.7.2",
     "expo": "~51.0.8",
     "expo-camera": "~15.0.10",
+    "expo-image-picker": "^15.0.5",
     "expo-location": "~17.0.1",
     "expo-status-bar": "~1.12.1",
     "js-cookie": "^3.0.5",

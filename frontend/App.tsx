@@ -6,7 +6,7 @@ import { RootStackParamList } from './types';
 import { AuthProvider, useAuth } from './AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import FaceScanScreen from './screens/FaceScanScreen';
+
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -17,7 +17,6 @@ const AppNavigator = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="FaceScan" component={FaceScanScreen} />
     </Stack.Navigator>
   );
 };
