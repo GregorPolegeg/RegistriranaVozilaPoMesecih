@@ -7,6 +7,8 @@ import {promisify} from "util";
 
 const pipelineAsync = promisify(pipeline);
 
+const BATCH_SIZE = 150;
+
 const vehicleKeys = [
   "firstRegDate",
   "firstRegDateSLO",
@@ -146,7 +148,6 @@ const scrapeFirstLinkInEach = async (url: string) => {
 // Function to convert date from 'DD.MM.YYYY' to ISO 8601 string in UTC
 const convertDateToISO = (dateString: string) => {
   try {
-    console.log("Original date string:", dateString); // Log the original date string
     const [day, month, year] = dateString
       .split(".")
       .map((part) => parseInt(part, 10));
@@ -158,7 +159,6 @@ const convertDateToISO = (dateString: string) => {
       throw new Error("Invalid date");
     }
     const isoDate = date.toISOString().split("T")[0];
-    console.log("Converted ISO date:", isoDate); // Log the converted ISO date
     return isoDate;
   } catch (error) {
     console.error("Error converting date to ISO format:", error);
@@ -166,56 +166,67 @@ const convertDateToISO = (dateString: string) => {
   }
 };
 
-const sendPostRequest = async (data: VehicleData) => {
+const sendPostRequest = async (data: VehicleData[]) => {
   try {
-    const formattedFirstRegDate = convertDateToISO(data.firstRegDate);
-    const formattedFirstRegDateSLO = convertDateToISO(data.firstRegDateSLO);
+    const formattedData = data
+      .map((vehicle) => {
+        const formattedFirstRegDate = convertDateToISO(vehicle.firstRegDate);
+        const formattedFirstRegDateSLO = convertDateToISO(
+          vehicle.firstRegDateSLO
+        );
 
-    if (!formattedFirstRegDate || !formattedFirstRegDateSLO) {
-      console.error("Invalid date(s):", {
-        firstRegDate: formattedFirstRegDate,
-        firstRegDateSLO: formattedFirstRegDateSLO,
-      });
+        if (!formattedFirstRegDate || !formattedFirstRegDateSLO) {
+          console.error("Invalid date(s):", {
+            firstRegDate: formattedFirstRegDate,
+            firstRegDateSLO: formattedFirstRegDateSLO,
+          });
+          return null;
+        }
+
+        return {
+          firstRegDate: formattedFirstRegDate,
+          firstRegDateSlo: formattedFirstRegDateSLO,
+          brand: vehicle.brand,
+          vin: vehicle.vin,
+          maxSpeed: Number(vehicle.maxSpeed),
+          fuelType: vehicle.fuelTypeDesc,
+          kilometers: Number(vehicle.kilometersMiles),
+          model: vehicle.commercialDesignation,
+          status: vehicle.status,
+          userAge: Number(vehicle.userAge),
+          userLegalStatus: vehicle.userLegalStatus,
+          userIsOwner: vehicle.userIsOwner,
+          userCity: vehicle.userRegAuthDesc,
+          userMunicipality: vehicle.userMunicipalityDesc,
+          ownerAge: Number(vehicle.ownerAge),
+          ownerLegalStatus: vehicle.ownerLegalStatus,
+          vehicleCategory: vehicle.vehicleCategoryDesc,
+          envLabel: vehicle.envLabel,
+          originCountry: vehicle.countryDesc,
+          weight: Number(vehicle.vehicleWeight),
+          nominalPower: Number(vehicle.nominalPower),
+          engineDisplacement: Number(vehicle.engineDisplacement),
+          nominalEngineSpeed: Number(vehicle.nominalEngineSpeed),
+          engineType: vehicle.engineType,
+          color: vehicle.vehicleColorDesc,
+          bodyType: vehicle.bodyTypeDesc,
+        };
+      })
+      .filter(Boolean); // Remove any null entries
+
+    if (formattedData.length === 0) {
+      console.error("No valid data to send");
       return;
     }
 
-    const sendBody = {
-      firstRegDate: formattedFirstRegDate,
-      firstRegDateSlo: formattedFirstRegDateSLO,
-      brand: data.brand,
-      vin: data.vin,
-      maxSpeed: Number(data.maxSpeed),
-      fuelType: data.fuelTypeDesc,
-      kilometers: Number(data.kilometersMiles),
-      model: data.commercialDesignation,
-      status: data.status,
-      userAge: Number(data.userAge),
-      userLegalStatus: data.userLegalStatus,
-      userIsOwner: data.userIsOwner,
-      userCity: data.userRegAuthDesc,
-      userMunicipality: data.userMunicipalityDesc,
-      ownerAge: Number(data.ownerAge),
-      ownerLegalStatus: data.ownerLegalStatus,
-      vehicleCategory: data.vehicleCategoryDesc,
-      envLabel: data.envLabel,
-      originCountry: data.countryDesc,
-      weight: Number(data.vehicleWeight),
-      nominalPower: Number(data.nominalPower),
-      engineDisplacement: Number(data.engineDisplacement),
-      nominalEngineSpeed: Number(data.nominalEngineSpeed),
-      engineType: data.engineType,
-      color: data.vehicleColorDesc,
-      bodyType: data.bodyTypeDesc,
-    };
+    //console.log("Sending data:", formattedData);
 
-    console.log("Sending data:", sendBody);
-
-    const response = await fetch("http://localhost:3001/vehicles/add", {
+    const response = await fetch("http://localhost:3001/vehicles/scraper", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(sendBody),
+      body: JSON.stringify(formattedData),
     });
 
     if (!response.ok) {
@@ -232,6 +243,13 @@ const sendPostRequest = async (data: VehicleData) => {
   }
 };
 
+const sendInBatches = async (allRecords: VehicleData[]) => {
+  for (let i = 0; i < allRecords.length; i += BATCH_SIZE) {
+    const batch = allRecords.slice(i, i + BATCH_SIZE);
+    await sendPostRequest(batch);
+  }
+};
+
 const downloadAndParseZip = async (url: string) => {
   try {
     const response = await fetch(url);
@@ -243,6 +261,8 @@ const downloadAndParseZip = async (url: string) => {
     );
 
     if (bufferStream) {
+      const allRecords: VehicleData[] = [];
+
       for await (const entry of bufferStream) {
         const fileName = entry.path;
         if (fileName.endsWith(".csv")) {
@@ -262,9 +282,13 @@ const downloadAndParseZip = async (url: string) => {
             },
             async function* (records) {
               for await (const record of records) {
-                // here send post request to  http://213.161.9.83:3001/vehicle/add with this data as body
-                const vehicleData: VehicleData = record as VehicleData;
-                await sendPostRequest(vehicleData);
+                const vehicleData: VehicleData = record;
+                //console.log(record);
+                allRecords.push(vehicleData);
+                if (allRecords.length % BATCH_SIZE === 0) {
+                  await sendInBatches(allRecords);
+                  allRecords.length = 0; // clear the array
+                }
               }
             }
           );
@@ -272,6 +296,8 @@ const downloadAndParseZip = async (url: string) => {
           entry.autodrain();
         }
       }
+
+      await sendPostRequest(allRecords);
     }
   } catch (error) {
     console.error("Failed to download or parse file:", error);
@@ -284,7 +310,7 @@ const main = async () => {
   //Drugi link: https://podatki.gov.si/dataset/prvic-registrirana-vozila-po-mesecih
 
   const links = await scrapeFirstLinkInEach(targetUrl);
-  console.log("Scraped Links:", links);
+  //console.log("Scraped Links:", links);
 
   for (const link of links) {
     await downloadAndParseZip(link);
