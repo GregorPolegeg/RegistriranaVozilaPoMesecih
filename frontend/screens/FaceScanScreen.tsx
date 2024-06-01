@@ -68,7 +68,7 @@ const FaceScanScreen = () => {
           Alert.alert('Error', error.response?.data?.message || 'Failed to upload video');
         } else {
           console.error('Upload error:', error);
-          Alert.alert('Error', 'Failed to upload video');
+          Alert.alert('Error', 'Failed to upload videoo');
         }
       }
     } else {
