@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   FaceScan: undefined;
+  LoginWithPicture: undefined;
   PhotoDetail: { photoId: string };
 };
 
