@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Button } from 'react-native';
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { useAuth } from '../AuthContext';
-import axios from 'axios';
-import config from '../config';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Button,
+} from "react-native";
+import { NavigationProp, ParamListBase } from "@react-navigation/native";
+import { useAuth } from "../AuthContext";
+import axios from "axios";
+import config from "../config";
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
@@ -24,11 +31,11 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     setLoading(true);
     try {
       const response = await axios.get(`${config.apiBaseUrl}/endpoint`, {
-        params: { userId: token }
+        params: { userId: token },
       });
       setData(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -36,7 +43,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleLogout = () => {
     logout();
-    navigation.navigate('Login');
+    navigation.navigate("Login");
   };
 
   return (
@@ -44,7 +51,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
       <Text style={styles.title}>Welcome to the Home Screen</Text>
       {isLoggedIn ? (
         <View>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Profile")}
+          >
             <Text style={styles.buttonText}>Go to Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleLogout}>
@@ -52,7 +62,13 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       ) : (
-        <Button title="Login" onPress={() => navigation.navigate('Login')} />
+        <View>
+          <Button title="Login" onPress={() => navigation.navigate("Login")} />
+          <Button
+            title="Vehicle list"
+            onPress={() => navigation.navigate("VehicleList")}
+          />
+        </View>
       )}
     </View>
   );
@@ -61,33 +77,33 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 16,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   item: {
     padding: 16,
     marginVertical: 8,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
-    width: '100%',
+    width: "100%",
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: "#007BFF",
     padding: 16,
     borderRadius: 8,
     marginVertical: 8,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 });
 

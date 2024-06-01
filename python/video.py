@@ -70,7 +70,7 @@ def split_video_into_faces(video_path, output_dir, frame_rate=1):
     print(f"Extracted {face_count} faces to {output_dir}")
 
 # Example usage
-video_path = 'C:/Users/Miha/Desktop/racunaalinski vid/facerecogntion/edine.mp4'
-output_dir = 'C:/Users/Miha/Desktop/racunaalinski vid/facerecogntion/faces'
+video_path = 'C:/Users/grego/Desktop/gregor.mp4'
+output_dir = 'C:/Users/grego/Desktop/faces'
 frame_rate = 10  # Process 10 frames per second
 split_video_into_faces(video_path, output_dir, frame_rate)
