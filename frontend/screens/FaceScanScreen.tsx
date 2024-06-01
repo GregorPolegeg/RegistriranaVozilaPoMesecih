@@ -65,7 +65,7 @@ const FaceScanScreen = () => {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error('Upload error:', error.response ? error.response.data : error.message);
-          Alert.alert('Error', error.response?.data?.message || 'Failed to upload video');
+          Alert.alert('Error', error.response?.data?.message || 'Failed to upload videoo');
         } else {
           console.error('Upload error:', error);
           Alert.alert('Error', 'Failed to upload videoo');
