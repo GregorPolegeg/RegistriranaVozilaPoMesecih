@@ -19,10 +19,12 @@
     "express-validator": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
-    "unzipper": "^0.11.6"
+    "unzipper": "^0.11.6",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/unzipper": "^0.10.9",
     "prisma": "^5.14.0",

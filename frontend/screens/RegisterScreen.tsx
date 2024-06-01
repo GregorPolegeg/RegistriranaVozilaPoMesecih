@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageURISource } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import config from '../config';
@@ -10,7 +9,7 @@ interface Props {
 }
 
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
-  const [firstName, setFirstname] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,56 +26,21 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       });
 
       if (response.status === 201) {
-        setSuccess('Registration successful. Please log in.');
+        setSuccess('Registration successful. Please upload a video.');
         setError('');
-        navigation.navigate('FaceScan');
+        navigation.navigate('FaceScan', { userId: response.data.userId });
       } else {
         throw new Error('Registration failed');
       }
-    } catch (err) {
+    } catch (err: any) {
       setSuccess('');
       setError('Registration failed. Please try again.');
-      console.error('Registration error', err);
-    }
-  };
 
-  const handleVideoCapture = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      setError('Camera permission is required for video capture');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      quality: 0.7,
-      videoMaxDuration: 30,
-    });
-
-    if (!result.canceled) {
-      const { uri } = result as any // Explicitly type cast the result
-      const formData = new FormData();
-      formData.append('video', {
-        uri,
-        type: 'video/mp4',
-        name: 'video.mp4',
-      } as any);
-
-      try {
-        const response = await axios.post(`${config.apiBaseUrl}/users/video-upload`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        if (response.status === 200) {
-          setSuccess('Video uploaded successfully. Proceed with registration.');
-        } else {
-          throw new Error('Video upload failed');
-        }
-      } catch (err) {
-        setError('Video upload failed');
-        console.error('Video upload error', err);
+      if (axios.isAxiosError(err)) {
+        console.error('Axios error', err.response?.data);
+        Alert.alert('Registration error', JSON.stringify(err.response?.data));
+      } else {
+        console.error('Registration error', err);
       }
     }
   };
@@ -90,7 +54,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         style={styles.input}
         placeholder="First Name"
         value={firstName}
-        onChangeText={setFirstname}
+        onChangeText={setFirstName}
       />
       <TextInput
         style={styles.input}
@@ -111,15 +75,8 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleVideoCapture}>
-        <Text style={styles.buttonText}>Capture Video for Face Recognition</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.linkText}>Go to Login</Text>
-      </TouchableOpacity>
+      <Button title="Register" onPress={handleRegister} />
+      <Button title="Go to Login" onPress={() => navigation.navigate('Login')} />
     </View>
   );
 };
@@ -127,16 +84,14 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
+    padding: 16,
+    backgroundColor: '#f8f8f8',
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 24,
+    marginBottom: 16,
     textAlign: 'center',
-    marginBottom: 32,
   },
   error: {
     color: 'red',
@@ -149,34 +104,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    height: 50,
-    backgroundColor: '#fff',
-    borderRadius: 25,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
+    height: 40,
+    borderColor: '#ccc',
     borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  button: {
-    height: 50,
-    backgroundColor: '#007BFF',
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 8,
+    padding: 8,
     marginBottom: 16,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  link: {
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#007BFF',
-    fontSize: 16,
   },
 });
 
