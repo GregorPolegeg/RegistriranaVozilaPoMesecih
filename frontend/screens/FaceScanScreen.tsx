@@ -3,7 +3,7 @@ import { View, Button, Alert, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios, { AxiosError } from 'axios';
 import { useRoute } from '@react-navigation/native';
-import config from '../config';
+import { API_URL } from '@env';
 
 const FaceScanScreen = () => {
   const [videoPath, setVideoPath] = useState<string | null>(null);
@@ -29,7 +29,7 @@ const FaceScanScreen = () => {
 
   const handleUpload = async () => {
     if (videoPath) {
-      const uploadUrl = `${config.apiBaseUrl}/users/uploadVideo`;
+      const uploadUrl = `${API_URL}/users/uploadVideo`;
       const fileName = videoPath.split('/').pop();
 
       try {

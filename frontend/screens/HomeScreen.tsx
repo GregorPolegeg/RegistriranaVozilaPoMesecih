@@ -10,7 +10,7 @@ import {
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
-import config from "../config";
+import { API_URL } from "@env";
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
@@ -28,18 +28,17 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the Home Screen</Text>
+      <Text style={styles.title}>Welcome to the Home Screen {API_URL}</Text>
       {isLoggedIn ? (
         <View>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("Profile")}
-          >
-            <Button
-              title="User profile"
-              onPress={() => navigation.navigate("UserProfile")}
-            />
-          </TouchableOpacity>
+          <Button
+            title="User profile"
+            onPress={() => navigation.navigate("UserProfile")}
+          />
+          <Button
+            title="Vehicle list"
+            onPress={() => navigation.navigate("VehicleList")}
+          />
           <TouchableOpacity style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
