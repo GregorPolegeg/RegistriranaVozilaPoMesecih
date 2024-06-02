@@ -49,4 +49,4 @@ RUN npm install
 WORKDIR /app
 
 # Start backend, frontend, and Python scripts
-CMD ["sh", "-c", "cd backend && npx prisma generate && npm start & cd .. & cd frontend && npm run start"]
+CMD ["sh", "-c", "cd backend && npm start & cd .. & cd frontend && npm run start"]
