@@ -29,11 +29,12 @@ router.post(
       const newTrip = await prisma.trip.create({
         data: {
           vehicleId,
+          startTime: new Date(),
           distance: 0,
         },
       });
 
-      return res.json(newTrip);
+      return res.status(201).json({ tripId: newTrip.id });
     } catch (error) {
       console.error(error);
       return res.status(500).json({error: "Internal Server Error"});
@@ -71,6 +72,30 @@ router.post(
     }
   }
 );
+
+router.post("/updateLocation", async (req: Request, res: Response) => {
+  const { tripId, lat, lng } = req.body;
+
+  if (!tripId || lat === undefined || lng === undefined) {
+    return res.status(400).json({ error: "Trip ID, latitude and longitude are required" });
+  }
+
+  try {
+    await prisma.location.create({
+      data: {
+        tripId: Number(tripId),
+        lat: Number(lat),
+        lng: Number(lng),
+        timestamp: new Date(),
+      },
+    });
+
+    res.status(200).json({ message: "Location updated" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not update location" });
+  }
+});
 
 // Endpoint to get all trip of a user where distance is not 0
 router.get(

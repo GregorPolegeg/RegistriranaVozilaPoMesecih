@@ -1,7 +1,7 @@
-import {Router, Request, Response} from "express";
+import {Router, Request, Response, NextFunction} from "express";
 import prisma from "../prisma/prisma";
 import {body, validationResult} from "express-validator";
-
+import jwt, { JwtPayload } from "jsonwebtoken";
 const router = Router();
 
 router.post(
@@ -415,6 +415,57 @@ router.get("/", async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({error: "Internal Server Error"});
+  }
+});
+interface AuthenticatedRequest extends Request {
+  userId?: number;
+}
+
+function isJwtPayload(decoded: unknown): decoded is JwtPayload {
+  return typeof decoded === "object" && decoded !== null && "userId" in decoded;
+}
+
+const authenticateToken = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_TOKEN as string, (err, decoded) => {
+    if (err) return res.sendStatus(403);
+
+    if (isJwtPayload(decoded)) {
+      req.userId = parseInt(decoded.userId);
+      next();
+    } else {
+      res.sendStatus(403);
+    }
+  });
+};
+
+router.get("/user", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+
+    const userId = req.userId;
+
+    const vehicles = await prisma.vehicle.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        brand: true,
+        model: true,
+        fuelType: true,
+        bodyType: true,
+      }
+    });
+
+    return res.json(vehicles);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
