@@ -45,23 +45,16 @@ router.post(
 // Endpoint to finish a trip
 router.post(
   "/finish",
-  [
-    body("id").isInt().withMessage("ID must be an integer"),
-    body("endTime")
-      .isISO8601()
-      .toDate()
-      .withMessage("End time must be a valid date"),
-    body("distance")
-      .isFloat({min: 0})
-      .withMessage("Distance must be a positive number"),
-  ],
-  handleValidationErrors,
   async (req: Request, res: Response) => {
-    const {id, endTime, distance} = req.body;
-
+    type FinishTrip = {
+      tripId: number,
+      distance: number
+    }
+    const {tripId, distance = 10} : FinishTrip  = req.body;
+    const endTime = new Date();
     try {
       const updatedTrip = await prisma.trip.update({
-        where: {id: Number(id)},
+        where: {id: tripId},
         data: {endTime, distance},
       });
 
