@@ -157,7 +157,6 @@ router.post(
   }
 );
 
-// Image upload endpoint
 router.post(
   "/uploadImage",
   upload.single("file"),
@@ -206,12 +205,10 @@ interface AuthenticatedRequest extends Request {
   userId?: number;
 }
 
-// Type guard to check if the decoded token is a JwtPayload
 function isJwtPayload(decoded: unknown): decoded is JwtPayload {
   return typeof decoded === "object" && decoded !== null && "userId" in decoded;
 }
 
-// Middleware to authenticate and extract userId from token
 const authenticateToken = (
   req: AuthenticatedRequest,
   res: Response,
@@ -254,7 +251,7 @@ router.get(
           email: true,
           vehicles: {
             select: {
-              id: true, // Assuming you might want to select the id or some other fields
+              id: true,
               trips: true,
               accelerations: true,
             },
