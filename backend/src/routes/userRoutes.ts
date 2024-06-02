@@ -115,10 +115,6 @@ router.post(
 );
 
 // User login
-// User login
-// User login
-// User login
-// User login
 router.post(
   "/login",
   [
@@ -146,8 +142,7 @@ router.post(
       if (!isValidPassword) {
         return res.status(400).json({ error: "Invalid email or password" });
       }
-
-      const token = jwt.sign({ userId: user.id }, "your_jwt_secret_key", {
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_TOKEN as string, {
         expiresIn: "1h",
       });
 
@@ -165,14 +160,12 @@ router.post(
   async (req: Request, res: Response) => {
     const { userId } = req.body;
     const imageFile = req.file;
-    console.log(imageFile);
 
     if (!userId || !imageFile) {
       return res
         .status(400)
         .json({ error: "User ID and image file are required" });
     }
-
     try {
       const imageUrl = path.join(imageFile.destination, imageFile.filename);
 
@@ -181,7 +174,7 @@ router.post(
         data: { imageUrl },
       });
 
-      const token = jwt.sign({ userId: userId }, "your_jwt_secret_key", {
+      const token = jwt.sign({ userId: userId }, process.env.JWT_TOKEN as string, {
         expiresIn: "1h",
       });
       res.status(200).json({ message: "Image uploaded successfully", token });
@@ -192,7 +185,6 @@ router.post(
   }
 );
 
-// Fetch all users
 router.get("/", async (req, res) => {
   try {
     const users = await prisma.user.findMany();
@@ -218,10 +210,9 @@ const authenticateToken = (
 ) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, "your_jwt_secret_key", (err, decoded) => {
+  jwt.verify(token, process.env.JWT_TOKEN as string, (err, decoded) => {
     if (err) return res.sendStatus(403);
 
     if (isJwtPayload(decoded)) {
@@ -243,7 +234,6 @@ router.get(
         .status(401)
         .json({ message: "Unauthorized: No user ID found in token." });
     }
-
     try {
       const user = await prisma.user.findUnique({
         where: { id: req.userId },
@@ -254,21 +244,58 @@ router.get(
           vehicles: {
             select: {
               id: true,
+              brand: true,
+              model: true,
+              vin: true,
+              fuelType: true,
+              bodyType: true,
               trips: true,
               accelerations: true,
             },
           },
         },
       });      
+      console.log(user);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      console.log(user);
       res.json(user);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
       res.status(500).json({ message: "Failed to fetch user profile", error });
+    }
+  }
+);
+
+router.post(
+  '/addvehicle',
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { vehicleId } = req.body;
+
+    if (!req.userId) {
+      return res.status(401).json({ message: 'Unauthorized: No user ID found in token.' });
+    }
+
+    try {
+      const vehicle = await prisma.vehicle.findUnique({
+        where: { id: vehicleId },
+      });
+
+      if (!vehicle) {
+        return res.status(404).json({ message: 'Vehicle not found' });
+      }
+
+      const updatedVehicle = await prisma.vehicle.update({
+        where: { id: vehicleId },
+        data: { userId: req.userId },
+      });
+
+      res.status(200).json({ message: 'Vehicle added to user', vehicle: updatedVehicle });
+    } catch (error) {
+      console.error('Failed to add vehicle to user:', error);
+      res.status(500).json({ message: 'Failed to add vehicle to user', error });
     }
   }
 );

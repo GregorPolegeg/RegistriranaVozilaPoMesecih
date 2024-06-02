@@ -29,11 +29,12 @@ router.post(
       const newTrip = await prisma.trip.create({
         data: {
           vehicleId,
+          startTime: new Date(),
           distance: 0,
         },
       });
 
-      return res.json(newTrip);
+      return res.status(201).json({ tripId: newTrip.id });
     } catch (error) {
       console.error(error);
       return res.status(500).json({error: "Internal Server Error"});
@@ -44,23 +45,16 @@ router.post(
 // Endpoint to finish a trip
 router.post(
   "/finish",
-  [
-    body("id").isInt().withMessage("ID must be an integer"),
-    body("endTime")
-      .isISO8601()
-      .toDate()
-      .withMessage("End time must be a valid date"),
-    body("distance")
-      .isFloat({min: 0})
-      .withMessage("Distance must be a positive number"),
-  ],
-  handleValidationErrors,
   async (req: Request, res: Response) => {
-    const {id, endTime, distance} = req.body;
-
+    type FinishTrip = {
+      tripId: number,
+      distance: number
+    }
+    const {tripId, distance = 10} : FinishTrip  = req.body;
+    const endTime = new Date();
     try {
       const updatedTrip = await prisma.trip.update({
-        where: {id: Number(id)},
+        where: {id: tripId},
         data: {endTime, distance},
       });
 
@@ -71,6 +65,30 @@ router.post(
     }
   }
 );
+
+router.post("/updateLocation", async (req: Request, res: Response) => {
+  const { tripId, lat, lng } = req.body;
+
+  if (!tripId || lat === undefined || lng === undefined) {
+    return res.status(400).json({ error: "Trip ID, latitude and longitude are required" });
+  }
+
+  try {
+    await prisma.location.create({
+      data: {
+        tripId: Number(tripId),
+        lat: Number(lat),
+        lng: Number(lng),
+        timestamp: new Date(),
+      },
+    });
+
+    res.status(200).json({ message: "Location updated" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Could not update location" });
+  }
+});
 
 // Endpoint to get all trip of a user where distance is not 0
 router.get(

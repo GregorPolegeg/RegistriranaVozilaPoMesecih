@@ -39,6 +39,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             title="Vehicle list"
             onPress={() => navigation.navigate("VehicleList")}
           />
+          <Button
+            title="Track trip"
+            onPress={() => navigation.navigate("TripTracker")}
+          />
           <TouchableOpacity style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>

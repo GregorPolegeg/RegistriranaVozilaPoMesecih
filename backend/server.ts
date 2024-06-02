@@ -5,6 +5,7 @@ import accelerationRoutes from "./src/routes/accelerationRoutes";
 import tripRoutes from "./src/routes/tripRoutes";
 import cors from "cors";
 
+
 const app = express();
 
 app.use(express.json());
@@ -16,6 +17,11 @@ app.use((req, res, next) => {
   console.log(`${req.method} request for '${req.url}'`);
   next();
 });
+
+if (!process.env.JWT_TOKEN) {
+  throw new Error('JWT_TOKEN environment variable is not defined');
+}
+
 
 app.use("/users", userRoutes);
 app.use("/vehicles", vehicleRoutes);
