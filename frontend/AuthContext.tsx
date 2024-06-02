@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface AuthContextType {
   isLoggedIn: boolean;
   token: string | null;
-  login: (id: string) => void;
+  userId: string | null;
+  login: (id: string, userId: string) => void;
   logout: () => void;
 }
 
@@ -16,24 +17,28 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadUserId = async () => {
       try {
         const savedToken = await AsyncStorage.getItem('token');
-        if (savedToken) {
+        const userId = await AsyncStorage.getItem('userId');
+        if (savedToken && userId) {
           setToken(savedToken);
+          setUserId(userId);
         }
       } catch (error) {
-        console.error('Failed to load token from storage', error);
+        console.error('Failed to load token or userId from storage', error);
       }
     };
 
     loadUserId();
   }, []);
 
-  const login = async (id: string) => {
+  const login = async (id: string, userId: string) => {
     setToken(id);
+    setUserId(userId);
     try {
       await AsyncStorage.setItem('token', id);
     } catch (error) {
@@ -43,6 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     setToken(null);
+    setUserId(null);
     try {
       await AsyncStorage.removeItem('token');
     } catch (error) {
@@ -53,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token , login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, userId ,token , login, logout }}>
       {children}
     </AuthContext.Provider>
   );

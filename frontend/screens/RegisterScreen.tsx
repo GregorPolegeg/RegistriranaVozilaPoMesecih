@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import config from '../config';
+import { API_URL } from '@env';
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
@@ -18,7 +19,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post(`${config.apiBaseUrl}/users/register`, {
+      const response = await axios.post(`${API_URL}/users/register`, {
         firstName,
         lastName,
         email,
