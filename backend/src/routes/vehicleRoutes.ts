@@ -406,7 +406,7 @@ router.post(
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const {limit = 50, offset} = req.query;
+    const {limit = 50, offset = 0} = req.query;
     const vehicles = await prisma.vehicle.findMany({
       take: Number(limit),
       skip: Number(offset),

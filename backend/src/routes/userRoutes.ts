@@ -206,4 +206,35 @@ router.get(
   }
 );
 
+router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.userId) {
+    return res.status(401).json({ message: "Unauthorized: No user ID found in token." });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      include: {
+        vehicles: {
+          include: {
+            trips: true,
+            accelerations: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Failed to fetch user profile:', error);
+    res.status(500).json({ message: "Failed to fetch user profile", error });
+  }
+});
+
+
+
 export default router;

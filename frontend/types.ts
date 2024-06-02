@@ -7,8 +7,10 @@ export type RootStackParamList = {
   Register: undefined;
   FaceScan: undefined;
   VehicleList: undefined;
+  UserProfile: undefined;
   PhotoDetail: { photoId: string };
 };
+
 
 export type PhotoDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'PhotoDetail'>;
 export type PhotoDetailScreenRouteProp = RouteProp<RootStackParamList, 'PhotoDetail'>;

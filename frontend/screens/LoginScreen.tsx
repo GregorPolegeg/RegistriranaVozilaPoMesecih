@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import { API_URL } from "@env";
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
 import config from '../config';
@@ -11,15 +12,15 @@ interface Props {
 }
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${config.apiBaseUrl}/users/login`, {
-        username,
+      const response = await axios.post(`${API_URL}/users/login`, {
+        username: email,
         password,
       });
 
@@ -75,8 +76,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
