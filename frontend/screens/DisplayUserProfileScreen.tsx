@@ -13,7 +13,7 @@ import TripCard from "../components/TripCard";
 import AccelerationCard from "../components/AccelerationCard";
 import { useAuth } from "../AuthContext";
 
-export default function DisplayUserProfile() {
+const DisplayUserProfile = () => {
   const [profile, setProfile] = useState<Profile>();
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
@@ -21,8 +21,9 @@ export default function DisplayUserProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`${API_URL}/users/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get(`${API_URL}/users/profile`, 
+        {
+          headers: { Authorization: `${token}` },
         });
         setProfile(response.data);
       } catch (error) {
@@ -44,7 +45,7 @@ export default function DisplayUserProfile() {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>
-          {profile.firstName} {profile.lastName}
+          {profile.firstName} {profile.lastName}  {profile.email} 
         </Text>
         <FlatList
           data={profile.vehicles}
@@ -103,3 +104,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+export default DisplayUserProfile;

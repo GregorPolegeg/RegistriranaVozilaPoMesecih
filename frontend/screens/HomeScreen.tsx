@@ -21,26 +21,6 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (isLoggedIn && token) {
-      fetchData();
-    }
-  }, [isLoggedIn, token]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${config.apiBaseUrl}/endpoint`, {
-        params: { userId: token },
-      });
-      setData(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleLogout = () => {
     logout();
     navigation.navigate("Login");
@@ -55,7 +35,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             style={styles.button}
             onPress={() => navigation.navigate("Profile")}
           >
-            <Text style={styles.buttonText}>Go to Profile</Text>
+            <Button
+              title="User profile"
+              onPress={() => navigation.navigate("UserProfile")}
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>

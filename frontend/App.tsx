@@ -9,6 +9,7 @@ import RegisterScreen from "./screens/RegisterScreen";
 import DisplayVehiclesScreen from "./screens/DisplayVehiclesScreen";
 import FaceScanScreen from "./screens/FaceScanScreen";
 import { SafeAreaView } from "react-native";
+import LoginWithPicture from "./screens/LoginWithPicture";
 import DisplayUserProfile from "./screens/DisplayUserProfileScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -22,6 +23,7 @@ const AppNavigator = () => {
       <Stack.Screen name="VehicleList" component={DisplayVehiclesScreen} />
       <Stack.Screen name="FaceScan" component={FaceScanScreen} />
       <Stack.Screen name="UserProfile" component={DisplayUserProfile} />
+      <Stack.Screen name="LoginWithPicture" component={LoginWithPicture} />
     </Stack.Navigator>
   );
 };

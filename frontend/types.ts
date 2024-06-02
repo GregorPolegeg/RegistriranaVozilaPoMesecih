@@ -8,6 +8,7 @@ export type RootStackParamList = {
   FaceScan: undefined;
   VehicleList: undefined;
   UserProfile: undefined;
+  LoginWithPicture: undefined;
   PhotoDetail: { photoId: string };
 };
 

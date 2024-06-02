@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { API_URL } from "@env";
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
@@ -20,52 +19,20 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(`${API_URL}/users/login`, {
-        username: email,
+        email,
         password,
       });
 
       if (response.status === 200) {
-        const { _id } = response.data;
-        await login(_id);
-        navigation.navigate('Home');
+        const { userId } = response.data;
+        await login("",userId.toString()); // Ensure userId is a string
+        navigation.navigate('LoginWithPicture', { userId: userId.toString() });
       } else {
         throw new Error('Login failed');
       }
     } catch (err) {
-      setError('Invalid username or password');
+      setError('Invalid email or password');
       console.error('Login error', err);
-    }
-  };
-
-  const handleFaceIdLogin = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      setError('Camera permission is required for FaceID login');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      base64: true,
-    });
-
-    if (!result.canceled && (result as any).base64) {
-      try {
-        const response = await axios.post(`${config.apiBaseUrl}/users/faceid-login`, {
-          image: (result as any).base64,
-        });
-
-        if (response.status === 200) {
-          const { _id } = response.data;
-          await login(_id);
-          navigation.navigate('Home');
-        } else {
-          throw new Error('FaceID login failed');
-        }
-      } catch (err) {
-        setError('FaceID login failed');
-        console.error('FaceID login error', err);
-      }
     }
   };
 
@@ -75,9 +42,11 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
         style={styles.input}
-        placeholder="Username"
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -91,9 +60,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Register')}>
         <Text style={styles.linkText}>Don't have an account? Register here</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.faceIdButton} onPress={handleFaceIdLogin}>
-        <Text style={styles.faceIdText}>Login with FaceID</Text>
       </TouchableOpacity>
     </View>
   );
@@ -148,19 +114,6 @@ const styles = StyleSheet.create({
   linkText: {
     color: '#007BFF',
     fontSize: 16,
-  },
-  faceIdButton: {
-    height: 50,
-    backgroundColor: '#28A745',
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  faceIdText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 
