@@ -23,7 +23,7 @@ const DisplayUserProfile = () => {
       try {
         const response = await axios.get(`${API_URL}/users/profile`, 
         {
-          headers: { Authorization: `${token}` },
+          headers: { authorization: `Bearer ${token}` },
         });
         setProfile(response.data);
       } catch (error) {

@@ -9,11 +9,12 @@ interface VehicleCardProps {
   fuelType: string;
   bodyType: string;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
-const VehicleCard: React.FC<VehicleCardProps> = ({ brand, model, vin, fuelType, bodyType, onPress }) => {
+const VehicleCard: React.FC<VehicleCardProps> = ({ brand, model, vin, fuelType, bodyType, onPress, onLongPress }) => {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity style={styles.card} onPress={onPress} onLongPress={onLongPress}>
       <Text style={styles.title}>{brand}</Text>
       <View style={styles.divider} />
       <View>

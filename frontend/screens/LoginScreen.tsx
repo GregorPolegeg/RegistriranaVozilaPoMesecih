@@ -4,7 +4,6 @@ import axios from 'axios';
 import { API_URL } from "@env";
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
-import config from '../config';
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
@@ -24,9 +23,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       });
 
       if (response.status === 200) {
-        const { userId } = response.data;
-        console.log(userId);
-        await login("",userId.toString());
+        const { token ,userId } = response.data;
+        await login(token ,userId.toString());
         navigation.navigate('LoginWithPicture', { userId: userId.toString() });
       } else {
         throw new Error('Login failed');
