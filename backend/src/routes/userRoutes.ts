@@ -101,6 +101,8 @@ router.post("/uploadVideo", upload.single('file'), async (req: Request, res: Res
 });
 
 // User login
+// User login
+// User login
 router.post(
   "/login",
   [
@@ -133,13 +135,40 @@ router.post(
         expiresIn: "1h",
       });
 
-      res.json({ token });
+      res.json({ token, userId: user.id });
     } catch (error) {
       console.error(error);
       res.status(400).json({ error: "Could not log in" });
     }
   }
 );
+
+
+
+// Image upload endpoint
+router.post("/uploadImage", upload.single('file'), async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const imageFile = req.file;
+
+  if (!userId || !imageFile) {
+    return res.status(400).json({ error: "User ID and image file are required" });
+  }
+
+  try {
+    const imageUrl = path.join(imageFile.destination, imageFile.filename);
+
+    await prisma.user.update({
+      where: { id: Number(userId) },
+      data: { imageUrl },
+    });
+
+    res.status(200).json({ message: "Image uploaded successfully", imageUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Image could not be uploaded" });
+  }
+});
+
 
 // Fetch all users
 router.get("/", async (req, res) => {

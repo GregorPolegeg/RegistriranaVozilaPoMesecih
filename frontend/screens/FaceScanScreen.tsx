@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, Button, Alert, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { useRoute } from '@react-navigation/native';
 import config from '../config';
-
-
 
 const FaceScanScreen = () => {
   const [videoPath, setVideoPath] = useState<string | null>(null);
+  const route = useRoute();
+  const { userId } = route.params as { userId: string };
 
   const pickVideo = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -33,7 +34,7 @@ const FaceScanScreen = () => {
 
       try {
         if (!fileName) {
-          Alert.alert('Error', 'File name does not exisst');
+          Alert.alert('Error', 'File name does not exist');
           return;
         }
 
@@ -46,6 +47,9 @@ const FaceScanScreen = () => {
           type: fileBlob.type,
         } as any);
 
+        // Append userId from route params
+        formData.append('userId', userId);
+
         const responseUpload = await axios.post(uploadUrl, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -55,11 +59,17 @@ const FaceScanScreen = () => {
         if (responseUpload.status === 200) {
           Alert.alert('Success', 'Video uploaded successfully!');
         } else {
+          console.error('Upload error response:', responseUpload.data);
           Alert.alert('Error', 'Failed to upload video');
         }
       } catch (error) {
-        console.error('Upload error: ', error);
-        Alert.alert('Error', 'Failed to upload video');
+        if (axios.isAxiosError(error)) {
+          console.error('Upload error:', error.response ? error.response.data : error.message);
+          Alert.alert('Error', error.response?.data?.message || 'Failed to upload videoo');
+        } else {
+          console.error('Upload error:', error);
+          Alert.alert('Error', 'Failed to upload videoo');
+        }
       }
     } else {
       Alert.alert('Error', 'No video to upload');

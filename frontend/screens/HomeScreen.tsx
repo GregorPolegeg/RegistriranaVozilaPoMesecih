@@ -14,25 +14,6 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (isLoggedIn && token) {
-      fetchData();
-    }
-  }, [isLoggedIn, token]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${config.apiBaseUrl}/endpoint`, {
-        params: { userId: token }
-      });
-      setData(response.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     logout();
