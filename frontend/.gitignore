@@ -8,6 +8,8 @@ node_modules/
 dist/
 web-build/
 
+config.tsx
+
 # Native
 *.orig.*
 *.jks

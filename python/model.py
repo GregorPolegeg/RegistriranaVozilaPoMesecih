@@ -50,7 +50,7 @@ def load_celeba_data(img_dir, identity_file, target_size=(64, 64)):
     return images, identities
 
 # Paths to the CelebA dataset
-img_dir = 'C:/Users/Miha/Desktop/racunaalinski vid/facerecogntion/images'  # Replace with the path to the CelebA images directory
+img_dir = 'C:/Users/grego/Desktop/'  # Replace with the path to the CelebA images directory
 identity_file = 'C:/Users/Miha/Desktop/racunaalinski vid/facerecogntion/identity_CelebA.txt'  # Replace with the path to the identity_CelebA.txt file
 
 # Load images and identities

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
+import { API_URL } from "@env";
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
 import config from '../config';
@@ -17,14 +18,15 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${config.apiBaseUrl}/users/login`, {
+      const response = await axios.post(`${API_URL}/users/login`, {
         email,
         password,
       });
 
       if (response.status === 200) {
         const { userId } = response.data;
-        await login(userId.toString()); // Ensure userId is a string
+        console.log(userId);
+        await login("",userId.toString());
         navigation.navigate('LoginWithPicture', { userId: userId.toString() });
       } else {
         throw new Error('Login failed');
