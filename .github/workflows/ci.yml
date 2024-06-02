@@ -58,4 +58,3 @@ jobs:
           expo start --no-interactive &
           sleep 3
           curl -I http://localhost:8081 # Test frontend server health
-
