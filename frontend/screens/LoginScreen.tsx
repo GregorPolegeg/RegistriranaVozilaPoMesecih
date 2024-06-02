@@ -25,7 +25,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
       if (response.status === 200) {
         const { userId } = response.data;
-        await login("",userId.toString()); // Ensure userId is a string
+        console.log(userId);
+        await login("",userId.toString());
         navigation.navigate('LoginWithPicture', { userId: userId.toString() });
       } else {
         throw new Error('Login failed');
