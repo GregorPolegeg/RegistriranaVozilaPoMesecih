@@ -1,94 +1,112 @@
-import React, { useState } from "react";
-import { View, Button, Alert, StyleSheet } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
-import { useRoute } from "@react-navigation/native";
-import { API_URL } from "@env";
-import { useAuth } from "../AuthContext";
+import React, { useRef, useState } from 'react';
+import { View, Button, Alert, StyleSheet, Platform } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
+import { useAuth } from '../AuthContext';
+import Webcam from 'react-webcam';
+import { API_URL } from '@env';
 
 const LoginWithPicture: React.FC = () => {
   const [imagePath, setImagePath] = useState<string | null>(null);
-  const { userId,login } = useAuth();
-  const route = useRoute();
+  const { userId, login } = useAuth();
+  const webcamRef = useRef<Webcam>(null);
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (Platform.OS === 'web') {
+      // Handle web image capture logic
+      if (webcamRef.current) {
+        const imageSrc = webcamRef.current.getScreenshot();
+        setImagePath(imageSrc);
+      }
+    } else {
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
-    if (permissionResult.granted === false) {
-      Alert.alert("Permission to access camera is required!");
-      return;
-    }
+      if (!permissionResult.granted) {
+        Alert.alert('Permission to access camera is required!');
+        return;
+      }
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    });
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImagePath(result.assets[0].uri);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImagePath(result.assets[0].uri);
+      }
     }
   };
 
   const handleUpload = async () => {
-    if (imagePath) {
-      const uploadUrl = `${API_URL}/users/uploadImage`;
-      const fileName = imagePath.split("/").pop();
+    if (!userId) {
+      Alert.alert('Error', 'User ID is missing');
+      return;
+    }
 
-      try {
-        if (!fileName) {
-          Alert.alert("Error", "File name does not exist");
-          return;
-        }
+    if (!imagePath) {
+      Alert.alert('Error', 'No image to upload');
+      return;
+    }
 
-        let formData = new FormData();
-
-        const fileBlob = await (await fetch(imagePath)).blob();
-        formData.append("file", {
-          uri: imagePath,
-          name: fileName,
-          type: fileBlob.type,
-        } as any);
-        if (userId) {
-          formData.append("userId", userId);
-        }
-        const responseUpload = await axios.post(uploadUrl, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        if (responseUpload.status === 200) {
-          const { token } = responseUpload.data;
-
-          if(userId)
-          await login(token, userId);
-
-          Alert.alert("Success", "Image uploaded successfully!");
-        } else {
-          console.error("Upload error response:", responseUpload.data);
-          Alert.alert("Error", "Failed to upload image");
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error(
-            "Upload error:",
-            error.response ? error.response.data : error.message
-          );
-          Alert.alert(
-            "Error",
-            error.response?.data?.message || "Failed to upload image"
-          );
-        } else {
-          console.error("Upload error:", error);
-          Alert.alert("Error", "Failed to upload image");
-        }
-      }
+    let formData = new FormData();
+    if (Platform.OS === 'web') {
+      const response = await fetch(imagePath);
+      const blob = await response.blob();
+      formData.append('file', blob, 'webcam-image.jpg');
     } else {
-      Alert.alert("Error", "No image to upload");
+      const fileName = imagePath.split('/').pop();
+      if (!fileName) {
+        Alert.alert('Error', 'File name does not exist');
+        return;
+      }
+
+      const fileBlob = await (await fetch(imagePath)).blob();
+      formData.append('file', {
+        uri: imagePath,
+        name: fileName,
+        type: fileBlob.type,
+      } as any);
+    }
+
+    formData.append('userId', userId);
+
+    const uploadUrl = `${API_URL}/users/uploadImage`;
+
+    try {
+      const responseUpload = await axios.post(uploadUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (responseUpload.status === 200) {
+        const { token } = responseUpload.data;
+        await login(token, userId);
+        Alert.alert('Success', 'Image uploaded successfully!');
+      } else {
+        console.error('Upload error response:', responseUpload.data);
+        Alert.alert('Error', 'Failed to upload image');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Upload error:', error.response ? error.response.data : error.message);
+        Alert.alert('Error', error.response?.data?.message || 'Failed to upload image');
+      } else {
+        console.error('Upload error:', error);
+        Alert.alert('Error', 'Failed to upload image');
+      }
     }
   };
+
   return (
     <View style={styles.container}>
-      <Button title="Take Picture" onPress={pickImage} />
+      {Platform.OS === 'web' ? (
+        <View style={styles.webContainer}>
+          <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
+          <Button title="Take Picture" onPress={pickImage} />
+        </View>
+      ) : (
+        <Button title="Take Picture" onPress={pickImage} />
+      )}
       {imagePath && <Button title="Upload Picture" onPress={handleUpload} />}
     </View>
   );
@@ -97,8 +115,14 @@ const LoginWithPicture: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  webContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

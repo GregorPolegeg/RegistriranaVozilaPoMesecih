@@ -37,7 +37,8 @@
     "react-native-video": "^6.1.2",
     "react-native-video-controls": "^2.8.1",
     "react-native-video-processing": "^1.7.2",
-    "react-native-web": "~0.19.10"
+    "react-native-web": "~0.19.10",
+    "react-webcam": "^7.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

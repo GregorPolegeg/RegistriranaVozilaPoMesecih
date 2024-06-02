@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "npx prisma generate & ts-node server.ts",
     "dev": "ts-node-dev server.ts",
     "scrape": "ts-node src/scraper/scraper.ts"
   },
