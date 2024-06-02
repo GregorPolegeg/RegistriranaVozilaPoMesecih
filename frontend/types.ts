@@ -9,6 +9,7 @@ export type RootStackParamList = {
   VehicleList: undefined;
   UserProfile: undefined;
   LoginWithPicture: undefined;
+  TripTracker: undefined;
   PhotoDetail: { photoId: string };
 };
 
