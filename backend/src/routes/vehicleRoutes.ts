@@ -122,7 +122,9 @@ router.post(
       });
 
       // Extract VINs of existing vehicles
-      const existingVins = existingVehicles.map((vehicle) => vehicle.vin);
+      const existingVins = existingVehicles.map(
+        (vehicle: {vin: string}) => vehicle.vin
+      );
 
       // Filter out new vehicles to be created
       const newVehicles = vehicles.filter(
