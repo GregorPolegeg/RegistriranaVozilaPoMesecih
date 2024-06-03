@@ -2,9 +2,10 @@ name: Build Backend2
 
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize, closed, labeled, unlabeled, review_requested, review_request_removed, ready_for_review, locked, unlocked, assigned, unassigned]
-    branches:
+  push: 
+    branches: 
       - master
+
 
 jobs:
   build:
