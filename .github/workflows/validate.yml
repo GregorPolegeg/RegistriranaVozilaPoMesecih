@@ -6,10 +6,8 @@ on:
     branches: 
       - master
 
-
 jobs:
-  build:
-    if: ${{ github.event.label.name == 'ready' }}
+  setup-environment:
     runs-on: self-hosted
 
     steps:
@@ -24,17 +22,49 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd backend
-          npm install
-          npm audit --production
-          npm run lint # Optional: Run linter to ensure code quality
+          touch error_log.txt
+          npm install > install_log.txt 2>&1 || echo "Error during npm install" > error_log.txt
+          npm audit --production >> install_log.txt 2>&1 || echo "Error during npm audit" >> error_log.txt
+          npm run lint >> install_log.txt 2>&1 || echo "Error during linting" >> error_log.txt # Optional: Run linter to ensure code quality
 
       - name: Install frontend dependencies
         run: |
           cd frontend
-          npm install
-          npm install --global expo-cli
-          npm audit --production
-          npm run lint # Optional: Run linter to ensure code quality
+          touch error_log.txt
+          npm install > install_log.txt 2>&1 || echo "Error during npm install" > error_log.txt
+          npm install --global expo-cli >> install_log.txt 2>&1 || echo "Error during expo-cli install" >> error_log.txt
+          npm audit --production >> install_log.txt 2>&1 || echo "Error during npm audit" >> error_log.txt
+          npm run lint >> install_log.txt 2>&1 || echo "Error during linting" >> error_log.txt # Optional: Run linter to ensure code quality
+
+      - name: Error msg
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: errors
+          path: backend/error_log.txt
+          if-no-files-found: ignore
+
+  run-tests:
+    runs-on: self-hosted
+    needs: setup-environment
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Checkout error log
+        uses: actions/download-artifact@v3
+        with:
+          name: errors    
+
+      - name: Run tests and capture output
+        run: |
+          if [ -s backend/error_log.txt ]; then
+            echo "Env not set up correctly"
+            cat backend/error_log.txt
+            exit 1
+          else
+            echo "Code testing"
+          fi
 
       - name: Run backend tests
         run: |
