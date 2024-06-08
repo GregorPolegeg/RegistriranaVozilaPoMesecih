@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
   View,
   Text,
@@ -7,17 +7,17 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import { NavigationProp, ParamListBase } from "@react-navigation/native";
-import { useAuth } from "../AuthContext";
+import {NavigationProp, ParamListBase} from "@react-navigation/native";
+import {useAuth} from "../AuthContext";
 import axios from "axios";
-import { API_URL } from "@env";
+import {API_URL, PYTHON_URL} from "@env";
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const HomeScreen: React.FC<Props> = ({ navigation }) => {
-  const { isLoggedIn, token, logout } = useAuth();
+const HomeScreen: React.FC<Props> = ({navigation}) => {
+  const {isLoggedIn, token, logout} = useAuth();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -29,6 +29,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to the Home Screen {API_URL}</Text>
+      <Text style={styles.title}>Welcome to the Home Screen {PYTHON_URL}</Text>
       {isLoggedIn ? (
         <View>
           <Button

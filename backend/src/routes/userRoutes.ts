@@ -1,8 +1,8 @@
-import { Router, Request, Response, NextFunction, request } from "express";
+import {Router, Request, Response, NextFunction, request} from "express";
 import bcrypt from "bcryptjs";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
 import prisma from "../prisma/prisma";
-import { body, validationResult } from "express-validator";
+import {body, validationResult} from "express-validator";
 import multer from "multer";
 import path from "path";
 
@@ -36,16 +36,16 @@ router.post(
     body("lastName").isString().withMessage("Last name must be a string"),
     body("email").isEmail().withMessage("Invalid email"),
     body("password")
-      .isLength({ min: 6 })
+      .isLength({min: 6})
       .withMessage("Password must be at least 6 characters long"),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({errors: errors.array()});
     }
 
-    const { firstName, lastName, email, password } = req.body;
+    const {firstName, lastName, email, password} = req.body;
     const videoFile = req.file;
 
     try {
@@ -64,20 +64,18 @@ router.post(
         },
       });
 
-      const token = jwt.sign({ userId: newUser.id }, "your_jwt_secret_key", {
+      const token = jwt.sign({userId: newUser.id}, "your_jwt_secret_key", {
         expiresIn: "1h",
       });
 
-      res
-        .status(201)
-        .json({
-          message: "User successfully created",
-          token,
-          userId: newUser.id,
-        });
+      res.status(201).json({
+        message: "User successfully created",
+        token,
+        userId: newUser.id,
+      });
     } catch (error) {
       console.error(error);
-      res.status(400).json({ error: "User could not be created" });
+      res.status(400).json({error: "User could not be created"});
     }
   }
 );
@@ -87,29 +85,27 @@ router.post(
   "/uploadVideo",
   upload.single("file"),
   async (req: Request, res: Response) => {
-    const { userId } = req.body;
+    const {userId} = req.body;
     const videoFile = req.file;
 
     if (!userId || !videoFile) {
       return res
         .status(400)
-        .json({ error: "User ID and video file are required" });
+        .json({error: "User ID and video file are required"});
     }
 
     try {
-      const videoUrl = path.join(videoFile.destination, videoFile.filename);
+      const videoUrl = path.join(userId, ".mp4");
 
       await prisma.user.update({
-        where: { id: Number(userId) },
-        data: { videoUrl },
+        where: {id: Number(userId)},
+        data: {videoUrl},
       });
 
-      res
-        .status(200)
-        .json({ message: "Video uploaded successfully", videoUrl });
+      res.status(200).json({message: "Video uploaded successfully", videoUrl});
     } catch (error) {
       console.error(error);
-      res.status(400).json({ error: "Video could not be uploaded" });
+      res.status(400).json({error: "Video could not be uploaded"});
     }
   }
 );
@@ -124,32 +120,36 @@ router.post(
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({errors: errors.array()});
     }
 
-    const { email, password } = req.body;
+    const {email, password} = req.body;
 
     try {
       const user = await prisma.user.findUnique({
-        where: { email },
+        where: {email},
       });
 
       if (!user || !user.password) {
-        return res.status(400).json({ error: "Invalid email or password" });
+        return res.status(400).json({error: "Invalid email or password"});
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
-        return res.status(400).json({ error: "Invalid email or password" });
+        return res.status(400).json({error: "Invalid email or password"});
       }
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_TOKEN as string, {
-        expiresIn: "1h",
-      });
+      const token = jwt.sign(
+        {userId: user.id},
+        process.env.JWT_TOKEN as string,
+        {
+          expiresIn: "1h",
+        }
+      );
 
-      res.json({ token, userId: user.id });
+      res.json({token, userId: user.id});
     } catch (error) {
       console.error(error);
-      res.status(400).json({ error: "Could not log in" });
+      res.status(400).json({error: "Could not log in"});
     }
   }
 );
@@ -158,29 +158,33 @@ router.post(
   "/uploadImage",
   upload.single("file"),
   async (req: Request, res: Response) => {
-    const { userId } = req.body;
+    const {userId} = req.body;
     const imageFile = req.file;
 
     if (!userId || !imageFile) {
       return res
         .status(400)
-        .json({ error: "User ID and image file are required" });
+        .json({error: "User ID and image file are required"});
     }
     try {
       const imageUrl = path.join(imageFile.destination, imageFile.filename);
 
       await prisma.user.update({
-        where: { id: Number(userId) },
-        data: { imageUrl },
+        where: {id: Number(userId)},
+        data: {imageUrl},
       });
 
-      const token = jwt.sign({ userId: userId }, process.env.JWT_TOKEN as string, {
-        expiresIn: "1h",
-      });
-      res.status(200).json({ message: "Image uploaded successfully", token });
+      const token = jwt.sign(
+        {userId: userId},
+        process.env.JWT_TOKEN as string,
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.status(200).json({message: "Image uploaded successfully", token});
     } catch (error) {
       console.error(error);
-      res.status(400).json({ error: "Image could not be uploaded" });
+      res.status(400).json({error: "Image could not be uploaded"});
     }
   }
 );
@@ -191,7 +195,7 @@ router.get("/", async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: "Could not fetch users" });
+    res.status(400).json({error: "Could not fetch users"});
   }
 });
 
@@ -224,7 +228,6 @@ const authenticateToken = (
   });
 };
 
-
 router.get(
   "/profile",
   authenticateToken,
@@ -232,11 +235,11 @@ router.get(
     if (!req.userId) {
       return res
         .status(401)
-        .json({ message: "Unauthorized: No user ID found in token." });
+        .json({message: "Unauthorized: No user ID found in token."});
     }
     try {
       const user = await prisma.user.findUnique({
-        where: { id: req.userId },
+        where: {id: req.userId},
         select: {
           firstName: true,
           lastName: true,
@@ -254,48 +257,52 @@ router.get(
             },
           },
         },
-      });      
+      });
       console.log(user);
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({message: "User not found"});
       }
       res.json(user);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
-      res.status(500).json({ message: "Failed to fetch user profile", error });
+      res.status(500).json({message: "Failed to fetch user profile", error});
     }
   }
 );
 
 router.post(
-  '/addvehicle',
+  "/addvehicle",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const { vehicleId } = req.body;
+    const {vehicleId} = req.body;
 
     if (!req.userId) {
-      return res.status(401).json({ message: 'Unauthorized: No user ID found in token.' });
+      return res
+        .status(401)
+        .json({message: "Unauthorized: No user ID found in token."});
     }
 
     try {
       const vehicle = await prisma.vehicle.findUnique({
-        where: { id: vehicleId },
+        where: {id: vehicleId},
       });
 
       if (!vehicle) {
-        return res.status(404).json({ message: 'Vehicle not found' });
+        return res.status(404).json({message: "Vehicle not found"});
       }
 
       const updatedVehicle = await prisma.vehicle.update({
-        where: { id: vehicleId },
-        data: { userId: req.userId },
+        where: {id: vehicleId},
+        data: {userId: req.userId},
       });
 
-      res.status(200).json({ message: 'Vehicle added to user', vehicle: updatedVehicle });
+      res
+        .status(200)
+        .json({message: "Vehicle added to user", vehicle: updatedVehicle});
     } catch (error) {
-      console.error('Failed to add vehicle to user:', error);
-      res.status(500).json({ message: 'Failed to add vehicle to user', error });
+      console.error("Failed to add vehicle to user:", error);
+      res.status(500).json({message: "Failed to add vehicle to user", error});
     }
   }
 );

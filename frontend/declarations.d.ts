@@ -1,5 +1,6 @@
 declare module "@env" {
   export const API_URL: string;
+  export const PYTHON_URL: string;
 }
 
 interface Vehicle {

@@ -1,29 +1,30 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { View, Button, Alert, StyleSheet, Platform, Text } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
-import { useRoute } from '@react-navigation/native';
-import Webcam from 'react-webcam';
-import { API_URL } from '@env';
+import React, {useState, useRef, useCallback} from "react";
+import {View, Button, Alert, StyleSheet, Platform, Text} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import {useRoute} from "@react-navigation/native";
+import Webcam from "react-webcam";
+import {PYTHON_URL} from "@env";
 
 const FaceScanScreen = () => {
   const [videoPath, setVideoPath] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const route = useRoute();
-  const { userId } = route.params as { userId: string };
+  const {userId} = route.params as {userId: string};
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
   const pickVideo = async () => {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       // Handle web video recording logic
       setVideoPath(null);
     } else {
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      const permissionResult =
+        await ImagePicker.requestCameraPermissionsAsync();
 
       if (!permissionResult.granted) {
-        Alert.alert('Permission to access camera is required!');
+        Alert.alert("Permission to access camera is required!");
         return;
       }
 
@@ -39,70 +40,81 @@ const FaceScanScreen = () => {
 
   const handleUpload = async () => {
     let formData = new FormData();
-    if (Platform.OS === 'web') {
+    console.log(PYTHON_URL);
+    if (Platform.OS === "web") {
       if (videoPath) {
         const videoBlob = await fetch(videoPath).then((r) => r.blob());
-        formData.append('file', videoBlob, 'webcam-video.mp4');
-        formData.append('userId', userId);
+        formData.append("file", videoBlob, "webcam-video.mp4");
+        formData.append("userId", userId);
         try {
-          const responseUpload = await axios.post(`${API_URL}/users/uploadVideo`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          const responseUpload = await axios.post(
+            `${PYTHON_URL}/users/uploadVideo`,
+            formData,
+            {
+              headers: {"Content-Type": "multipart/form-data"},
+            }
+          );
           if (responseUpload.status === 200) {
-            Alert.alert('Success', 'Video uploaded successfully!');
+            Alert.alert("Success", "Video uploaded successfully!");
           } else {
-            Alert.alert('Error', 'Failed to upload video');
+            Alert.alert("Error", "Failed to upload video");
           }
         } catch (error) {
-          Alert.alert('Error', 'Failed to upload video');
+          Alert.alert("Error", "Failed to upload video");
         }
       } else {
-        Alert.alert('Error', 'No video to upload');
+        Alert.alert("Error", "No video to upload");
       }
     } else {
       if (videoPath) {
-        const fileName = videoPath.split('/').pop();
+        const fileName = videoPath.split("/").pop();
         if (!fileName) {
-          Alert.alert('Error', 'File name does not exist');
+          Alert.alert("Error", "File name does not exist");
           return;
         }
 
         const fileBlob = await (await fetch(videoPath)).blob();
-        formData.append('file', {
+        formData.append("file", {
           uri: videoPath,
           name: fileName,
           type: fileBlob.type,
         } as any);
       } else {
-        Alert.alert('Error', 'No video to upload');
+        Alert.alert("Error", "No video to upload");
         return;
       }
     }
 
-    formData.append('userId', userId);
+    formData.append("userId", userId);
 
-    const uploadUrl = `${API_URL}/users/uploadVideo`;
+    const uploadUrl = `${PYTHON_URL}/users/uploadVideo`;
 
     try {
       const responseUpload = await axios.post(uploadUrl, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
       if (responseUpload.status === 200) {
-        Alert.alert('Success', 'Video uploaded successfully!');
+        Alert.alert("Success", "Video uploaded successfully!");
       } else {
-        console.error('Upload error response:', responseUpload.data);
-        Alert.alert('Error', 'Failed to upload video');
+        console.error("Upload error response:", responseUpload.data);
+        Alert.alert("Error", "Failed to upload video");
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Upload error:', error.response ? error.response.data : error.message);
-        Alert.alert('Error', error.response?.data?.message || 'Failed to upload video');
+        console.error(
+          "Upload error:",
+          error.response ? error.response.data : error.message
+        );
+        Alert.alert(
+          "Error",
+          error.response?.data?.message || "Failed to upload video"
+        );
       } else {
-        console.error('Upload error:', error);
-        Alert.alert('Error', 'Failed to upload video');
+        console.error("Upload error:", error);
+        Alert.alert("Error", "Failed to upload video");
       }
     }
   };
@@ -120,7 +132,7 @@ const FaceScanScreen = () => {
         };
 
         mediaRecorder.onstop = async () => {
-          const blob = new Blob(chunksRef.current, { type: 'video/mp4' });
+          const blob = new Blob(chunksRef.current, {type: "video/mp4"});
           const url = URL.createObjectURL(blob);
           setVideoPath(url);
           chunksRef.current = []; // clear the chunks
@@ -141,7 +153,7 @@ const FaceScanScreen = () => {
 
   return (
     <View style={styles.container}>
-      {Platform.OS === 'web' ? (
+      {Platform.OS === "web" ? (
         <View style={styles.webContainer}>
           <Webcam audio={true} ref={webcamRef} />
           {!isRecording ? (
@@ -161,14 +173,14 @@ const FaceScanScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   webContainer: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
