@@ -13,7 +13,6 @@ import { API_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import AccelerationCard from "../components/AccelerationCard"; // Ensure this component is correctly imported
 
-
 export default function DisplayAccelerationsScreen() {
   const [accelerations, setAccelerations] = useState<Acceleration[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

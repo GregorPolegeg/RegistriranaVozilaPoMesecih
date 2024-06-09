@@ -5,6 +5,8 @@ interface AuthContextType {
   isLoggedIn: boolean;
   token: string | null;
   userId: string | null;
+  vehicleId: number | null;
+  addVehicle: (id: number) => void;
   login: (id: string, userId: string) => void;
   logout: () => void;
 }
@@ -18,6 +20,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [vehicleId, setVehicleId] = useState<number | null>(null);
 
   useEffect(() => {
     const loadUserId = async () => {
@@ -46,6 +49,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const addVehicle = async (id: number) => {
+    setVehicleId(id);
+    try {
+      await AsyncStorage.removeItem('token');
+    } catch (error) {
+      console.error('Failed to remove userId from storage', error);
+    }
+  };
+
   const logout = async () => {
     setToken(null);
     setUserId(null);
@@ -59,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, userId ,token , login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, userId ,token , login, logout, addVehicle, vehicleId }}>
       {children}
     </AuthContext.Provider>
   );

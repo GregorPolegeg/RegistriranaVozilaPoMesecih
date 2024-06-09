@@ -17,6 +17,19 @@ const handleValidationErrors = (
   next();
 };
 
+const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+  const toRad = (value: number) => value * Math.PI / 180;
+
+  const R = 6371; // Radius of the Earth in km
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
 // Endpoint to start a new trip
 router.post(
   "/start",
@@ -47,24 +60,40 @@ router.post(
   "/finish",
   async (req: Request, res: Response) => {
     type FinishTrip = {
-      tripId: number,
-      distance: number
+      tripId: number;
     }
-    const {tripId, distance = 10} : FinishTrip  = req.body;
+    const { tripId }: FinishTrip = req.body;
     const endTime = new Date();
+
     try {
+      const locations = await prisma.location.findMany({
+        where: { tripId },
+        orderBy: { timestamp: 'asc' }
+      });
+
+      let totalDistance = 0;
+      for (let i = 1; i < locations.length; i++) {
+        totalDistance += calculateDistance(
+          locations[i - 1].lat,
+          locations[i - 1].lng,
+          locations[i].lat,
+          locations[i].lng
+        );
+      }
+
       const updatedTrip = await prisma.trip.update({
-        where: {id: tripId},
-        data: {endTime, distance},
+        where: { id: tripId },
+        data: { endTime, distance: totalDistance },
       });
 
       return res.json(updatedTrip);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({error: "Internal Server Error"});
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 );
+
 
 router.post("/updateLocation", async (req: Request, res: Response) => {
   const { tripId, lat, lng } = req.body;
@@ -114,5 +143,31 @@ router.get(
     }
   }
 );
+
+router.get(
+  "/trip/:tripId",
+  [param("tripId").isInt().withMessage("Trip ID must be an integer")],
+  handleValidationErrors,
+  async (req: Request, res: Response) => {
+    const { tripId } = req.params;
+
+    try {
+      const trip = await prisma.trip.findUnique({
+        where: { id: Number(tripId) },
+        include: { locations: true },
+      });
+
+      if (!trip) {
+        return res.status(404).json({ error: "Trip not found" });
+      }
+
+      return res.json(trip);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
 
 export default router;

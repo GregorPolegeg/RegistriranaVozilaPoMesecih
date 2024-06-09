@@ -408,17 +408,29 @@ router.post(
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const {limit = 50, offset = 0} = req.query;
+    const { limit = 50, offset = 0, search = "" } = req.query;
+
+    // Type guard to ensure `search` is a string
+    const searchString = Array.isArray(search) ? search.join("") : search;
+
     const vehicles = await prisma.vehicle.findMany({
       take: Number(limit),
       skip: Number(offset),
+      where: {
+        vin: {
+          contains: searchString as string,
+          mode: "insensitive",
+        },
+      },
     });
     return res.json(vehicles);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({error: "Internal Server Error"});
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 interface AuthenticatedRequest extends Request {
   userId?: number;
 }
