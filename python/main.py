@@ -38,7 +38,7 @@ def upload_video():
         face_count = split_video_into_faces(file_path, output_dir, frame_rate=10)
 
         if face_count < 249:
-            return jsonify(error="The video quality is not good enough, please provide a better video."), 400
+            return jsonify(error="The video quality is not good enough, please provide a better/longer video."), 400
 
         # Train the model for the specific user
         train_model(user_id)
@@ -68,7 +68,7 @@ def upload_image():
         if result.get('success') and result.get('message', '').startswith(f"Image matches the class {user_id}") and result.get('confidence', 0) > 0.9:
             return jsonify(message="Redirect to Home", success=True), 200
 
-        return jsonify(result), 200
+        return jsonify(result), 400
     except Exception as e:
         print(e)
         return jsonify(error="Image could not be uploaded or processed"), 400

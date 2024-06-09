@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import axios from 'axios';
-import { API_URL } from "@env";
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { useAuth } from '../AuthContext';
+import React, {useState} from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import axios from "axios";
+import {API_URL} from "@env";
+import {NavigationProp, ParamListBase} from "@react-navigation/native";
+import {useAuth} from "../AuthContext";
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const LoginScreen: React.FC<Props> = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { login } = useAuth();
+const LoginScreen: React.FC<Props> = ({navigation}) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const {login} = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -23,21 +29,22 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       });
 
       if (response.status === 200) {
-        const { token ,userId } = response.data;
-        await login(token ,userId.toString());
-        navigation.navigate('LoginWithPicture', { userId: userId.toString() });
+        const {token, userId} = response.data;
+        await login(token, userId.toString());
+        navigation.navigate("LoginWithPicture", {userId: userId.toString()});
       } else {
-        throw new Error('Login failed');
+        throw new Error("Login failed");
       }
     } catch (err) {
-      setError('Invalid email or password');
-      console.error('Login error', err);
+      setError("Invalid email or password");
+      console.error("Login error", err);
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>{API_URL}</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
         style={styles.input}
@@ -57,8 +64,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.linkText}>Don't have an account? Register here</Text>
+      <TouchableOpacity
+        style={styles.link}
+        onPress={() => navigation.navigate("Register")}
+      >
+        <Text style={styles.linkText}>
+          Don't have an account? Register here
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -68,50 +80,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
+    justifyContent: "center",
+    backgroundColor: "#f0f0f0",
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
     marginBottom: 32,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     height: 50,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 25,
     paddingHorizontal: 16,
     marginBottom: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
   button: {
     height: 50,
-    backgroundColor: '#007BFF',
+    backgroundColor: "#007BFF",
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 16,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   link: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
   },
   linkText: {
-    color: '#007BFF',
+    color: "#007BFF",
     fontSize: 16,
   },
 });
