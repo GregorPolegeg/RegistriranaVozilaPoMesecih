@@ -87,7 +87,8 @@ def display_image(image_path, model, class_labels, train_images_path, confidence
 
 
 def main(user_id, image_path):
-    base_directory = r'python\faces'
+    base_directory = r'faces'
+    base_directory = os.path.abspath(base_directory)
     model_path = os.path.join(base_directory, f'{user_id}_face_model.keras')
     
     if not os.path.exists(model_path):
