@@ -1,6 +1,5 @@
 import os
 import sys
-from matplotlib import pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import models
