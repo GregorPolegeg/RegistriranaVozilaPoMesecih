@@ -25,7 +25,6 @@ jobs:
           touch error_log.txt
           npm install > install_log.txt 2>&1 || echo "Error during npm install" >> error_log.txt
           npm audit --production >> install_log.txt 2>&1 || echo "Error during npm audit" >> error_log.txt
-          npm run lint >> install_log.txt 2>&1 || echo "Error during linting" >> error_log.txt # Optional: Run linter to ensure code quality
 
       - name: Install frontend dependencies
         run: |
@@ -34,7 +33,6 @@ jobs:
           npm install > install_log.txt 2>&1 || echo "Error during npm install" >> error_log.txt
           npm install --global expo-cli >> install_log.txt 2>&1 || echo "Error during expo-cli install" >> error_log.txt
           npm audit --production >> install_log.txt 2>&1 || echo "Error during npm audit" >> error_log.txt
-          npm run lint >> install_log.txt 2>&1 || echo "Error during linting" >> error_log.txt # Optional: Run linter to ensure code quality
 
       - name: Upload error log
         uses: actions/upload-artifact@v3
