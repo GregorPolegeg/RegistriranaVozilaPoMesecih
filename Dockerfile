@@ -12,23 +12,12 @@ COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
 
-# Stage 3: Install Python dependencies
-FROM python:3.10-slim AS python-build
-WORKDIR /app/python
-COPY python/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-COPY python/ ./
-
-# Ensure Python scripts are executable
-RUN chmod +x *.py
-
-# Stage 4: Run all services
+# Stage 3: Run all services
 FROM node:18-slim
 WORKDIR /app
 
-# Install Mosquitto and Python in the final stage
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip mosquitto
+# Install Python, pip, and Mosquitto in the final stage
+RUN apt-get update && apt-get install -y python3 python3-pip python3-venv mosquitto
 
 # Copy backend files
 COPY --from=backend-build /app/backend /app/backend
@@ -37,7 +26,7 @@ COPY --from=backend-build /app/backend /app/backend
 COPY --from=frontend-build /app/frontend /app/frontend
 
 # Copy Python files
-COPY --from=python-build /app/python /app/python
+COPY python /app/python
 
 # Copy Mosquitto files
 COPY mosquitto/ /app/mosquitto
@@ -48,8 +37,16 @@ RUN npm install
 WORKDIR /app/frontend
 RUN npm install
 
+# Set up Python virtual environment and install Python dependencies
+WORKDIR /app/python
+RUN python3 -m venv venv
+RUN ./venv/bin/pip install --no-cache-dir -r requirements.txt
+
 # Set the working directory back to /app
 WORKDIR /app
 
-# Start Mosquitto, backend, frontend, and Python scripts
-CMD ["sh", "-c", "mosquitto -c /app/mosquitto/config/mosquitto.conf -d && cd backend && npm start & cd .. & cd frontend && npm run start"]
+# Ensure the virtual environment's Python and pip are in the PATH
+ENV PATH="/app/python/venv/bin:$PATH"
+
+# Start Mosquitto, backend, frontend, and Python script
+CMD ["sh", "-c", "mosquitto -c /app/mosquitto/config/mosquitto.conf -d && cd backend && npm start & cd .. & cd frontend && npm run start & cd python && ./venv/bin/python main.py"]
