@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, StyleSheet, Alert, FlatList, TouchableOpacity } from "react-native";
-import * as Location from 'expo-location';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Alert,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import * as Location from "expo-location";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
 import { API_URL } from "@env";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const TripTrackingScreen = () => {
   const [tripId, setTripId] = useState<number | null>(null);
@@ -37,12 +46,14 @@ const TripTrackingScreen = () => {
       }
 
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission to access location was denied');
+      if (status !== "granted") {
+        Alert.alert("Permission to access location was denied");
         return;
       }
 
-      const response = await axios.post(`${API_URL}/trips/start`, { vehicleId });
+      const response = await axios.post(`${API_URL}/trips/start`, {
+        vehicleId,
+      });
 
       if (response.data && response.data.tripId) {
         setTripId(response.data.tripId);
@@ -59,7 +70,7 @@ const TripTrackingScreen = () => {
               lng: longitude,
             },
             {
-              headers: { Authorization: `Bearer ${token}` }
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
         }, 30000);
@@ -84,30 +95,40 @@ const TripTrackingScreen = () => {
   const renderVehicle = ({ item }: { item: Vehicle }) => (
     <TouchableOpacity onPress={() => setVehicleId(item.id)}>
       <View style={styles.vehicleCard}>
-        <Text style={styles.vehicleText}>{item.brand} {item.model}</Text>
-        <Text style={styles.vehicleText}>{item.fuelType} - {item.bodyType}</Text>
+        <Text style={styles.vehicleText}>
+          {item.brand} {item.model}
+        </Text>
+        <Text style={styles.vehicleText}>
+          {item.fuelType} - {item.bodyType}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      {loading ? (
-        <Text>Loading vehicles...</Text>
-      ) : vehicleId === null ? (
-        <FlatList
-          data={vehicles}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderVehicle}
-        />
-      ) : (
-        <>
-          <Text style={styles.title}>Trip Tracker</Text>
-          <Button title="Start Trip" onPress={startTrip} disabled={!!tripId} />
-          <Button title="Stop Trip" onPress={stopTrip} disabled={!tripId} />
-        </>
-      )}
-    </View>
+    <SafeAreaView style={{flex:1}}>
+      <View style={styles.container}>
+        {loading ? (
+          <Text>Loading vehicles...</Text>
+        ) : vehicleId === null ? (
+          <FlatList
+            data={vehicles}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderVehicle}
+          />
+        ) : (
+          <>
+            <Text style={styles.title}>Trip Tracker</Text>
+            <Button
+              title="Start Trip"
+              onPress={startTrip}
+              disabled={!!tripId}
+            />
+            <Button title="Stop Trip" onPress={stopTrip} disabled={!tripId} />
+          </>
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 

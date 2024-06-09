@@ -1,10 +1,22 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, Button, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, Button, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { API_URL } from '@env';
-import { useFocusEffect } from '@react-navigation/native';
-import TripCard from '../components/TripCard'; // Ensure you have this component
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import TripCard from '../components/TripCard';
+import { RootStackParamList } from '../types';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useAuth } from '../AuthContext';
 
+type DisplayTripsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DisplayTripsScreen'>;
+
+interface Trip {
+  id: number;
+  vehicleId: number;
+  startTime: string;
+  endTime: string;
+  distance: number;
+}
 
 export default function DisplayTripsScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -12,11 +24,13 @@ export default function DisplayTripsScreen() {
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
+  const navigation = useNavigation<DisplayTripsScreenNavigationProp>();
+  const { userId } = useAuth();
 
   const getTrips = useCallback(async () => {
     if (!hasMore) return;
     try {
-      const response = await axios.get(`${API_URL}/trips?limit=10&offset=${(page - 1) * 10}`);
+      const response = await axios.get(`${API_URL}/trips/user/${userId}`);
       setTrips((prevTrips) => [...prevTrips, ...response.data]);
       setHasMore(response.data.length === 10);
     } catch (error) {
@@ -48,6 +62,10 @@ export default function DisplayTripsScreen() {
     </View>
   );
 
+  const handlePressTrip = (tripId: number) => {
+    navigation.navigate('DisplayTripScreen', { tripId });
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -55,7 +73,11 @@ export default function DisplayTripsScreen() {
         <FlatList
           data={trips}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <TripCard trip={item} />}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handlePressTrip(item.id)}>
+              <TripCard trip={item} />
+            </TouchableOpacity>
+          )}
           ListFooterComponent={renderFooter}
         />
       </View>

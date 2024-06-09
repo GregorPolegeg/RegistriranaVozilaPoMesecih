@@ -15,7 +15,12 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs access to your camera to take photos.",
-        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to tag photos with your location."
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to tag photos with your location.",
+        "UIBackgroundModes": [
+          "fetch",
+          "processing"
+        ],
+        "NSMotionUsageDescription": "This app needs access to your motion data to detect acceleration."
       }
     },
     "android": {
@@ -26,7 +31,10 @@
       "permissions": [
         "CAMERA",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK",
+        "BODY_SENSORS"
       ]
     },
     "web": {

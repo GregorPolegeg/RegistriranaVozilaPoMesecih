@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface Trip {
@@ -8,12 +9,14 @@ interface Trip {
     endTime: string;
     distance: number;
   }
-  
+
 const TripCard = ({ trip }: { trip: Trip }) => {
+    const formattedDateStart = format(new Date(trip.startTime), 'PPpp');
+    const formattedDateEnd = format(new Date(trip.endTime), 'PPpp');
   return (
     <View style={styles.card}>
-      <Text style={styles.cardText}>Start Time: {trip.startTime}</Text>
-      <Text style={styles.cardText}>End Time: {trip.endTime}</Text>
+      <Text style={styles.cardText}>Start Time: {formattedDateStart}</Text>
+      <Text style={styles.cardText}>End Time: {formattedDateEnd}</Text>
       <Text style={styles.cardText}>Distance: {trip.distance.toFixed(2)} km</Text>
     </View>
   );
