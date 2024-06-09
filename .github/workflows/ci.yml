@@ -2,10 +2,9 @@ name: Build Backend
 
 on:
   pull_request:
-  push: 
-    branches: 
+  push:
+    branches:
       - master
-
 
 jobs:
   build:
@@ -49,13 +48,13 @@ jobs:
       - name: Start backend server
         run: |
           cd backend
-          npm start &
-          sleep 3
+          nohup npm start & # Use nohup to keep the server running in the background
+          sleep 10 # Increase sleep to give the server time to start
           curl -I http://localhost:3001 # Test backend server health
 
       - name: Start frontend server
         run: |
           cd frontend
-          expo start --no-interactive &
-          sleep 3
+          nohup expo start --no-interactive &
+          sleep 10 # Increase sleep to give the server time to start
           curl -I http://localhost:8081 # Test frontend server health
