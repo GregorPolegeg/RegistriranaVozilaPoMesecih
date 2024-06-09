@@ -1,6 +1,7 @@
 declare module "@env" {
   export const API_URL: string;
   export const KOMAR: string;
+  export const PYTHON_URL: string;
 }
 
 declare module 'react-native-paho-mqtt' {

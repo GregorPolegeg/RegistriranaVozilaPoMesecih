@@ -5,7 +5,6 @@ COPY backend/package*.json ./
 RUN npm install
 COPY backend/ ./
 
-
 # Stage 2: Build frontend
 FROM node:18-slim AS frontend-build
 WORKDIR /app/frontend
@@ -27,6 +26,10 @@ RUN chmod +x *.py
 FROM node:18-slim
 WORKDIR /app
 
+# Install Mosquitto and Python in the final stage
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip mosquitto
+
 # Copy backend files
 COPY --from=backend-build /app/backend /app/backend
 
@@ -36,8 +39,8 @@ COPY --from=frontend-build /app/frontend /app/frontend
 # Copy Python files
 COPY --from=python-build /app/python /app/python
 
-# Install Python in final stage
-RUN apt-get update && apt-get install -y python3 python3-pip
+# Copy Mosquitto files
+COPY mosquitto/ /app/mosquitto
 
 # Install backend and frontend dependencies in the final stage
 WORKDIR /app/backend
@@ -48,5 +51,5 @@ RUN npm install
 # Set the working directory back to /app
 WORKDIR /app
 
-# Start backend, frontend, and Python scripts
-CMD ["sh", "-c", "cd backend && npm start & cd .. & cd frontend && npm run start"]
+# Start Mosquitto, backend, frontend, and Python scripts
+CMD ["sh", "-c", "mosquitto -c /app/mosquitto/config/mosquitto.conf -d && cd backend && npm start & cd .. & cd frontend && npm run start"]

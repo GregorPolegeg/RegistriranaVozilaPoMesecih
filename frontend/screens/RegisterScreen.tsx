@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { API_URL } from '@env';
+import React, {useState} from "react";
+import {View, Text, TextInput, Button, StyleSheet, Alert} from "react-native";
+import axios from "axios";
+import {NavigationProp, ParamListBase} from "@react-navigation/native";
+import {API_URL} from "@env";
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const RegisterScreen: React.FC<Props> = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+const RegisterScreen: React.FC<Props> = ({navigation}) => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleRegister = async () => {
     try {
@@ -26,21 +26,21 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       });
 
       if (response.status === 201) {
-        setSuccess('Registration successful. Please upload a video.');
-        setError('');
-        navigation.navigate('FaceScan', { userId: response.data.userId });
+        setSuccess("Registration successful. Please upload a video.");
+        setError("");
+        navigation.navigate("FaceScan", {userId: response.data.userId});
       } else {
-        throw new Error('Registration failed');
+        throw new Error("Registration failed");
       }
     } catch (err: any) {
-      setSuccess('');
-      setError('Registration failed. Please try again.');
+      setSuccess("");
+      setError("Registration failed. Please try again.");
 
       if (axios.isAxiosError(err)) {
-        console.error('Axios error', err.response?.data);
-        Alert.alert('Registration error', JSON.stringify(err.response?.data));
+        console.error("Axios error", err.response?.data);
+        Alert.alert("Registration error", JSON.stringify(err.response?.data));
       } else {
-        console.error('Registration error', err);
+        console.error("Registration error", err);
       }
     }
   };
@@ -76,7 +76,10 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         secureTextEntry
       />
       <Button title="Register" onPress={handleRegister} />
-      <Button title="Go to Login" onPress={() => navigation.navigate('Login')} />
+      <Button
+        title="Go to Login"
+        onPress={() => navigation.navigate("Login")}
+      />
     </View>
   );
 };
@@ -84,28 +87,28 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
   },
   title: {
     fontSize: 24,
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   success: {
-    color: 'green',
+    color: "green",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     height: 40,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     padding: 8,
