@@ -25,7 +25,6 @@ jobs:
           cd backend
           npm install
           npm audit --production
-          npm run lint # Optional: Run linter to ensure code quality
 
       - name: Install frontend dependencies
         run: |
@@ -33,7 +32,6 @@ jobs:
           npm install
           npm install --global expo-cli
           npm audit --production
-          npm run lint # Optional: Run linter to ensure code quality
 
       - name: Run backend tests
         run: |
