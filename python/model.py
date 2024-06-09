@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+import cv2
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import Sequence
@@ -8,10 +9,54 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from collections import Counter
 
+def rotate_image(image, angle):
+    (h, w) = image.shape[:2]
+    center = (w // 2, h // 2)
+
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h))
+    return rotated
+
+def mirror_image(image):
+    return cv2.flip(image, 1)
+
+def change_brightness(image, value):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+    
+    v = cv2.add(v, value)
+    v[v > 255] = 255
+    v[v < 0] = 0
+    
+    final_hsv = cv2.merge((h, s, v))
+    image_brightness = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return image_brightness
+
+def add_noise(image, mean=0, var=10):
+    row, col, ch = image.shape
+    sigma = var ** 0.5
+    gauss = np.random.normal(mean, sigma, (row, col, ch))
+    gauss = gauss.reshape(row, col, ch)
+    noisy = image + gauss
+    noisy = np.clip(noisy, 0, 255).astype(np.uint8)
+    return noisy
+
 def custom_augmentation(image):
-    image = tf.image.random_brightness(image, max_delta=0.2)
-    image = tf.image.random_contrast(image, lower=0.5, upper=0.7)
-    return image
+    augmented_images = []
+    
+    # Apply rotation
+    augmented_images.append(rotate_image(image, 10))
+    
+    # Apply mirroring
+    augmented_images.append(mirror_image(image))
+    
+    # Apply brightness change
+    augmented_images.append(change_brightness(image, 20))
+    
+    # Apply noise addition
+    augmented_images.append(add_noise(image))
+    
+    return augmented_images
 
 data_augmentation = ImageDataGenerator(
     width_shift_range=0.2,
