@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import tensorflow as tf
-import cv2
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import Sequence
@@ -10,33 +9,40 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from collections import Counter
 
 def rotate_image(image, angle):
-    (h, w) = image.shape[:2]
-    center = (w // 2, h // 2)
-
-    M = cv2.getRotationMatrix2D(center, angle, 1.0)
-    rotated = cv2.warpAffine(image, M, (w, h))
-    return rotated
+    angle = np.deg2rad(angle)
+    cos_theta, sin_theta = np.cos(angle), np.sin(angle)
+    height, width = image.shape[:2]
+    
+    new_width = int(np.abs(height * sin_theta) + np.abs(width * cos_theta))
+    new_height = int(np.abs(height * cos_theta) + np.abs(width * sin_theta))
+    
+    new_image = np.zeros((new_height, new_width, image.shape[2]), dtype=image.dtype)
+    
+    old_center = np.array([height // 2, width // 2])
+    new_center = np.array([new_height // 2, new_width // 2])
+    
+    for i in range(new_height):
+        for j in range(new_width):
+            y, x = i - new_center[0], j - new_center[1]
+            old_x = int(x * cos_theta + y * sin_theta + old_center[1])
+            old_y = int(-x * sin_theta + y * cos_theta + old_center[0])
+            
+            if 0 <= old_x < width and 0 <= old_y < height:
+                new_image[i, j] = image[old_y, old_x]
+    
+    return new_image
 
 def mirror_image(image):
-    return cv2.flip(image, 1)
+    return np.flip(image, axis=1)
 
 def change_brightness(image, value):
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    h, s, v = cv2.split(hsv)
-    
-    v = cv2.add(v, value)
-    v[v > 255] = 255
-    v[v < 0] = 0
-    
-    final_hsv = cv2.merge((h, s, v))
-    image_brightness = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    image_brightness = np.clip(image + value, 0, 255).astype(np.uint8)
     return image_brightness
 
 def add_noise(image, mean=0, var=10):
     row, col, ch = image.shape
     sigma = var ** 0.5
     gauss = np.random.normal(mean, sigma, (row, col, ch))
-    gauss = gauss.reshape(row, col, ch)
     noisy = image + gauss
     noisy = np.clip(noisy, 0, 255).astype(np.uint8)
     return noisy
@@ -44,16 +50,12 @@ def add_noise(image, mean=0, var=10):
 def custom_augmentation(image):
     augmented_images = []
     
-    # Apply rotation
     augmented_images.append(rotate_image(image, 10))
     
-    # Apply mirroring
     augmented_images.append(mirror_image(image))
     
-    # Apply brightness change
-    augmented_images.append(change_brightness(image, 20))
+    augmented_images.append(change_brightness(image, 3))
     
-    # Apply noise addition
     augmented_images.append(add_noise(image))
     
     return augmented_images
