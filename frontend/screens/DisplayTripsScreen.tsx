@@ -55,7 +55,10 @@ export default function DisplayTripsScreen() {
     }
   };
 
+  console.log(API_URL)
+
   const renderFooter = () => (
+    
     <View style={styles.loadingContainer}>
       {isFetchingMore && <ActivityIndicator size="large" color="#0000ff" />}
       {hasMore && !isFetchingMore && <Button title="Load More" onPress={handleLoadMore} />}

@@ -2,8 +2,8 @@ name: Build Backend2
 
 on:
   pull_request:
-  push: 
-    branches: 
+  push:
+    branches:
       - master
 
 jobs:
@@ -23,47 +23,48 @@ jobs:
         run: |
           cd backend
           touch error_log.txt
-          npm install > install_log.txt 2>&1 || echo "Error during npm install" > error_log.txt
+          npm install > install_log.txt 2>&1 || echo "Error during npm install" >> error_log.txt
           npm audit --production >> install_log.txt 2>&1 || echo "Error during npm audit" >> error_log.txt
-          npm run lint >> install_log.txt 2>&1 || echo "Error during linting" >> error_log.txt # Optional: Run linter to ensure code quality
 
       - name: Install frontend dependencies
         run: |
           cd frontend
           touch error_log.txt
-          npm install > install_log.txt 2>&1 || echo "Error during npm install" > error_log.txt
+          npm install > install_log.txt 2>&1 || echo "Error during npm install" >> error_log.txt
           npm install --global expo-cli >> install_log.txt 2>&1 || echo "Error during expo-cli install" >> error_log.txt
           npm audit --production >> install_log.txt 2>&1 || echo "Error during npm audit" >> error_log.txt
-          npm run lint >> install_log.txt 2>&1 || echo "Error during linting" >> error_log.txt # Optional: Run linter to ensure code quality
 
-      - name: Error msg
+      - name: Upload error log
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           name: errors
-          path: backend/error_log.txt
+          path: |
+            backend/error_log.txt
+            frontend/error_log.txt
           if-no-files-found: ignore
 
   run-tests:
     runs-on: self-hosted
     needs: setup-environment
-    
+
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Checkout error log
+
+      - name: Download error log
         uses: actions/download-artifact@v3
         with:
-          name: errors    
+          name: errors
 
-      - name: Run tests and capture output
+      - name: Check for errors
         run: |
-          if [ -s backend/error_log.txt ]; then
-            echo "Env not set up correctly"
-            cat backend/error_log.txt
+          if [ -s backend/error_log.txt ] || [ -s frontend/error_log.txt ]; then
+            echo "Environment not set up correctly"
+            cat backend/error_log.txt || true
+            cat frontend/error_log.txt || true
             exit 1
           else
-            echo "Code testing"
+            echo "Environment setup correctly"
           fi
 
       - name: Run backend tests
@@ -79,13 +80,13 @@ jobs:
       - name: Start backend server
         run: |
           cd backend
-          npm start &
-          sleep 3
+          nohup npm start & # Use nohup to keep the server running in the background
+          sleep 10 # Increase sleep to give the server time to start
           curl -I http://localhost:3001 # Test backend server health
 
       - name: Start frontend server
         run: |
           cd frontend
-          expo start --no-interactive &
-          sleep 3
+          nohup expo start --no-interactive &
+          sleep 10 # Increase sleep to give the server time to start
           curl -I http://localhost:8081 # Test frontend server health

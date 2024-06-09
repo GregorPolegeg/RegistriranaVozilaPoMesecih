@@ -8,10 +8,57 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from collections import Counter
 
+def rotate_image(image, angle):
+    angle = np.deg2rad(angle)
+    cos_theta, sin_theta = np.cos(angle), np.sin(angle)
+    height, width = image.shape[:2]
+    
+    new_width = int(np.abs(height * sin_theta) + np.abs(width * cos_theta))
+    new_height = int(np.abs(height * cos_theta) + np.abs(width * sin_theta))
+    
+    new_image = np.zeros((new_height, new_width, image.shape[2]), dtype=image.dtype)
+    
+    old_center = np.array([height // 2, width // 2])
+    new_center = np.array([new_height // 2, new_width // 2])
+    
+    for i in range(new_height):
+        for j in range(new_width):
+            y, x = i - new_center[0], j - new_center[1]
+            old_x = int(x * cos_theta + y * sin_theta + old_center[1])
+            old_y = int(-x * sin_theta + y * cos_theta + old_center[0])
+            
+            if 0 <= old_x < width and 0 <= old_y < height:
+                new_image[i, j] = image[old_y, old_x]
+    
+    return new_image
+
+def mirror_image(image):
+    return np.flip(image, axis=1)
+
+def change_brightness(image, value):
+    image_brightness = np.clip(image + value, 0, 255).astype(np.uint8)
+    return image_brightness
+
+def add_noise(image, mean=0, var=10):
+    row, col, ch = image.shape
+    sigma = var ** 0.5
+    gauss = np.random.normal(mean, sigma, (row, col, ch))
+    noisy = image + gauss
+    noisy = np.clip(noisy, 0, 255).astype(np.uint8)
+    return noisy
+
 def custom_augmentation(image):
-    image = tf.image.random_brightness(image, max_delta=0.2)
-    image = tf.image.random_contrast(image, lower=0.5, upper=0.7)
-    return image
+    augmented_images = []
+    
+    augmented_images.append(rotate_image(image, 10))
+    
+    augmented_images.append(mirror_image(image))
+    
+    augmented_images.append(change_brightness(image, 3))
+    
+    augmented_images.append(add_noise(image))
+    
+    return augmented_images
 
 data_augmentation = ImageDataGenerator(
     width_shift_range=0.2,
