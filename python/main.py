@@ -35,7 +35,7 @@ def upload_video():
 
         # Call the function to extract faces from the video
         output_dir = os.path.join(app.config['FACES_FOLDER'], user_id)
-        face_count = split_video_into_faces(file_path, output_dir, frame_rate=10)
+        face_count = split_video_into_faces(file_path, output_dir, frame_rate=150)
 
         if face_count < 249:
             return jsonify(error="The video quality is not good enough, please provide a better/longer video."), 400

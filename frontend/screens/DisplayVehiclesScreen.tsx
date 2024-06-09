@@ -33,6 +33,7 @@ export default function DisplayVehiclesScreen() {
   const navigation = useNavigation();
 
   const getVehicles = useCallback(async () => {
+    console.log(API_URL)
     if (!hasMore) return;
     try {
       console.log(page);

@@ -22,6 +22,7 @@ const DisplayTripScreen: React.FC<Props> = ({ route }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log(API_URL)
     const fetchTripDetails = async () => {
       try {
         const response = await axios.get<Trip>(

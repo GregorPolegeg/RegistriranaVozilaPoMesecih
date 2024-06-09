@@ -19,6 +19,7 @@ const DisplayUserProfile = () => {
   const { token } = useAuth();
 
   useEffect(() => {
+    console.log(API_URL)
     const fetchProfile = async () => {
       try {
         const response = await axios.get(`${API_URL}/users/profile`, 

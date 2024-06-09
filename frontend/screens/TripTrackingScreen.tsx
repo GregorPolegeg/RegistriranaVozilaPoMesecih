@@ -22,6 +22,7 @@ const TripTrackingScreen = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    console.log(API_URL)
     const fetchVehicles = async () => {
       try {
         const response = await axios.get(`${API_URL}/vehicles/user`, {
