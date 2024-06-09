@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import Webcam from 'react-webcam';
-import { API_URL } from '@env';
+import { API_URL, PYTHON_URL } from '@env';
 
 const LoginWithPicture: React.FC = () => {
   const [imagePath, setImagePath] = useState<string | null>(null);
@@ -69,7 +69,7 @@ const LoginWithPicture: React.FC = () => {
 
     formData.append('userId', userId);
 
-    const uploadUrl = `${API_URL}/users/uploadImage`;
+    const uploadUrl = `${PYTHON_URL}/users/uploadImage`;
 
     try {
       const responseUpload = await axios.post(uploadUrl, formData, {
