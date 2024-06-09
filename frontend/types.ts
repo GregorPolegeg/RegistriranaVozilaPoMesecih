@@ -10,9 +10,9 @@ export type RootStackParamList = {
   UserProfile: undefined;
   LoginWithPicture: undefined;
   TripTracker: undefined;
+  MQTTClient: undefined;
+  DisplayTripScreen: { tripId: number };
+  DisplayTripsScreen: undefined;
   PhotoDetail: { photoId: string };
 };
 
-
-export type PhotoDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'PhotoDetail'>;
-export type PhotoDetailScreenRouteProp = RouteProp<RootStackParamList, 'PhotoDetail'>;

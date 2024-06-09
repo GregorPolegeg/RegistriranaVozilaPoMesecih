@@ -23,7 +23,7 @@ router.post(
   [body("vehicleId").isInt().withMessage("Vehicle ID must be an integer")],
   handleValidationErrors,
   async (req: Request, res: Response) => {
-    const {vehicleId} = req.body;
+    const {vehicleId, acceleration} = req.body;
 
     if (vehicleId === null || vehicleId === undefined) {
       return res.status(400).json({error: "Vehicle ID is required"});
@@ -33,7 +33,7 @@ router.post(
       const newAcceleration = await prisma.acceleration.create({
         data: {
           vehicleId,
-          distance: 0,
+          distance: acceleration,
         },
       });
       return res.json(newAcceleration);

@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Modal,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
@@ -18,23 +19,25 @@ import { useFocusEffect } from "@react-navigation/native";
 import VehicleCard from "../components/VehicleCard";
 import { useAuth } from "../AuthContext";
 
-
 export default function DisplayVehiclesScreen() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const { token } = useAuth();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const { token,addVehicle } = useAuth();
   const navigation = useNavigation();
 
   const getVehicles = useCallback(async () => {
     if (!hasMore) return;
     try {
+      console.log(page);
       const res = await axios.get(
-        `${API_URL}/vehicles?limit=10&offset=${(page - 1) * 10}`
+        `${API_URL}/vehicles?limit=10&offset=${(page - 1) * 20}&search=${searchQuery}`
       );
       setVehicles((prevVehicles) => [...prevVehicles, ...res.data]);
       setHasMore(res.data.length === 10);
@@ -44,7 +47,7 @@ export default function DisplayVehiclesScreen() {
       setLoading(false);
       setIsFetchingMore(false);
     }
-  }, [page, hasMore]);
+  }, [page, hasMore, searchQuery]);
 
   useFocusEffect(
     useCallback(() => {
@@ -59,6 +62,7 @@ export default function DisplayVehiclesScreen() {
   };
 
   const handleLongPress = (vehicle: Vehicle) => {
+    addVehicle(vehicle.id);
     setSelectedVehicle(vehicle);
     setModalVisible(true);
   };
@@ -84,6 +88,13 @@ export default function DisplayVehiclesScreen() {
     }
   };
 
+  useEffect(() => {
+    const filtered = vehicles.filter((vehicle) =>
+      vehicle.vin.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredVehicles(filtered);
+  }, [searchQuery, vehicles]);
+
   const renderFooter = () => {
     return (
       <View style={styles.loadingContainer}>
@@ -98,11 +109,23 @@ export default function DisplayVehiclesScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search by VIN"
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            setPage(1);
+            setVehicles([]);
+            setLoading(true);
+            setHasMore(true);
+          }}
+        />
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Text style={styles.title}>Vehicles:</Text>
           <View style={styles.separator} />
           <FlatList
-            data={vehicles}
+            data={filteredVehicles}
             keyExtractor={(item) => item.vin}
             renderItem={({ item }) => (
               <VehicleCard
@@ -130,14 +153,8 @@ export default function DisplayVehiclesScreen() {
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Is this vehicle yours?</Text>
           <View style={styles.buttonContainer}>
-            <Button
-              title="Yes"
-              onPress={handleConfirmOwnership}
-            />
-            <Button
-              title="No"
-              onPress={() => setModalVisible(false)}
-            />
+            <Button title="Yes" onPress={handleConfirmOwnership} />
+            <Button title="No" onPress={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
@@ -154,6 +171,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 16,
   },
   title: {
     textAlign: "center",

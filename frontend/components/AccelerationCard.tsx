@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface Acceleration {
@@ -11,10 +12,12 @@ interface Acceleration {
 
   
 const AccelerationCard = ({ acceleration }: { acceleration: Acceleration }) => {
+  const formattedDateStart = format(new Date(acceleration.startTime), 'PPpp');
+  const formattedDateEnd = format(new Date(acceleration.endTime), 'PPpp');
   return (
     <View style={styles.card}>
-      <Text style={styles.cardText}>Start Time: {acceleration.startTime}</Text>
-      <Text style={styles.cardText}>End Time: {acceleration.endTime}</Text>
+      <Text style={styles.cardText}>Start Time: {formattedDateStart}</Text>
+      <Text style={styles.cardText}>End Time: {formattedDateEnd}</Text>
       <Text style={styles.cardText}>Distance: {acceleration.distance.toFixed(2)} km</Text>
     </View>
   );
