@@ -90,6 +90,7 @@ const FaceScanScreen = () => {
     const uploadUrl = `${PYTHON_URL}/users/uploadVideo`;
 
     try {
+      console.log(PYTHON_URL)
       const responseUpload = await axios.post(uploadUrl, formData, {
         headers: {
           "Content-Type": "multipart/form-data",

@@ -21,17 +21,16 @@ data_augmentation = ImageDataGenerator(
     preprocessing_function=custom_augmentation
 )
 
-def fetch_image_data(directory):
+def fetch_image_data(user_directory, unknown_directory):
     images = []
     labels = []
     
-    for class_dir in filter(lambda d: os.path.isdir(os.path.join(directory, d)), os.listdir(directory)):
-        class_label = class_dir
-        current_path = os.path.join(directory, class_dir).replace('\\', '/')
+    for directory in [user_directory, unknown_directory]:
+        class_label = os.path.basename(directory)
+        image_files = filter(lambda f: f.endswith(('.jpg', '.png', '.jpeg')), os.listdir(directory))
         
-        image_files = filter(lambda f: f.endswith(('.jpg', '.png', '.jpeg')), os.listdir(current_path))
         for image_file in image_files:
-            full_image_path = os.path.join(current_path, image_file).replace('\\', '/')
+            full_image_path = os.path.join(directory, image_file).replace('\\', '/')
             image = tf.keras.preprocessing.image.load_img(full_image_path, target_size=(64, 64), color_mode='grayscale')
             image = tf.keras.preprocessing.image.img_to_array(image) / 255.0
             images.append(image)
@@ -65,7 +64,7 @@ class DataGenerator(Sequence):
     def on_epoch_end(self):
         np.random.shuffle(self.indices)
 
-def create_model(kernel_size):
+def create_model(kernel_size, num_classes):
     model = models.Sequential()
     
     model.add(layers.Input(shape=(64, 64, 1)))
@@ -86,7 +85,7 @@ def create_model(kernel_size):
     
     model.add(layers.Flatten())
     model.add(layers.Dense(128, activation='tanh'))
-    model.add(layers.Dense(len(np.unique(train_labels)), activation='softmax'))
+    model.add(layers.Dense(num_classes, activation='softmax'))
     
     return model
 
@@ -101,41 +100,51 @@ def train_and_evaluate_model(model, train_gen, val_gen, test_images, test_labels
     
     return history, test_acc
 
-train_images, train_labels = fetch_image_data('C:/Users/Miha/Desktop/racunaalinski vid/vaja5/faces')
+def main(user_id):
+    base_directory = 'C:/Users/jasst/Desktop/spletek/RegistriranaVozilaPoMesecih/python/faces'
+    user_directory = os.path.join(base_directory, user_id)
+    unknown_directory = os.path.join(base_directory, 'unknown')
 
-label_encoder = {label: idx for idx, label in enumerate(np.unique(train_labels))}
-train_labels = np.array([label_encoder[label] for label in train_labels])
+    # Ensure the directories exist
+    if not os.path.isdir(user_directory) or not os.path.isdir(unknown_directory):
+        raise ValueError("User directory or unknown directory does not exist")
 
-# Check data balance
-print("Class distribution in training data:", Counter(train_labels))
-
-train_images, val_images, train_labels, val_labels = train_test_split(
-    train_images, train_labels, test_size=0.2, stratify=train_labels)
-
-train_images = train_images.reshape(-1, 64, 64, 1)
-val_images = val_images.reshape(-1, 64, 64, 1)
-
-train_gen = DataGenerator(train_images, train_labels, augment=True)
-val_gen = DataGenerator(val_images, val_labels, augment=False)
-
-kernel_sizes = [(3, 3)]
-accuracies = {}
-
-for kernel_size in kernel_sizes:
-    model = create_model(kernel_size)
-    history, test_acc = train_and_evaluate_model(model, train_gen, val_gen, val_images, val_labels)
-    accuracies[kernel_size] = test_acc
+    kernel_sizes = [(3, 3)]
     
-    model.save(f'face_model.keras')
+    train_images, train_labels = fetch_image_data(user_directory, unknown_directory)
 
-# Print final accuracies
-print("Final Test Accuracies for different kernel sizes:")
-for kernel_size, acc in accuracies.items():
-    print(f"Kernel Size {kernel_size}: Test Accuracy = {acc:.4f}")
+    label_encoder = {label: idx for idx, label in enumerate(np.unique(train_labels))}
+    train_labels = np.array([label_encoder[label] for label in train_labels])
 
-# Evaluate on known data
-print("\nEvaluating on known training data:")
-for i in range(5):
-    test_image = train_images[i].reshape(1, 64, 64, 1)
-    prediction = model.predict(test_image)
-    print(f"True label: {train_labels[i]}, Predicted label: {np.argmax(prediction)}, Confidence: {np.max(prediction)}")
+    # Check data balance
+    print(f"Class distribution in training data for user {user_id}:", Counter(train_labels))
+
+    train_images, val_images, train_labels, val_labels = train_test_split(
+        train_images, train_labels, test_size=0.2, stratify=train_labels)
+
+    train_images = train_images.reshape(-1, 64, 64, 1)
+    val_images = val_images.reshape(-1, 64, 64, 1)
+
+    train_gen = DataGenerator(train_images, train_labels, augment=True)
+    val_gen = DataGenerator(val_images, val_labels, augment=False)
+
+    accuracies = {}
+
+    for kernel_size in kernel_sizes:
+        model = create_model(kernel_size, len(np.unique(train_labels)))
+        history, test_acc = train_and_evaluate_model(model, train_gen, val_gen, val_images, val_labels)
+        accuracies[kernel_size] = test_acc
+        
+        model.save(f'{user_directory}_face_model.keras')
+
+    # Print final accuracies
+    print(f"Final Test Accuracies for different kernel sizes for user {user_id}:")
+    for kernel_size, acc in accuracies.items():
+        print(f"Kernel Size {kernel_size}: Test Accuracy = {acc:.4f}")
+
+    # Evaluate on known data
+    print(f"\nEvaluating on known training data for user {user_id}:")
+    for i in range(5):
+        test_image = train_images[i].reshape(1, 64, 64, 1)
+        prediction = model.predict(test_image)
+        print(f"True label: {train_labels[i]}, Predicted label: {np.argmax(prediction)}, Confidence: {np.max(prediction)}")
