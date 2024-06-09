@@ -1,17 +1,17 @@
 import React from "react";
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {createMaterialBottomTabNavigator} from "@react-navigation/material-bottom-tabs";
+import {createStackNavigator} from "@react-navigation/stack";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 import HomeScreen from "./HomeScreen";
 import DisplayTripsScreen from "./DisplayTripsScreen";
-import { useAuth } from "../AuthContext";
+import {useAuth} from "../AuthContext";
 import DisplayUserProfileScreen from "./DisplayUserProfileScreen";
 import TripTrackingScreen from "./TripTrackingScreen";
 import MQTTClient from "./MQTTClient";
 import LoginScreen from "./LoginScreen";
 import RegisterScreen from "./RegisterScreen";
 import DisplayVehiclesScreen from "./DisplayVehiclesScreen";
-import { RootStackParamList } from "../types";
+import {RootStackParamList} from "../types";
 import DisplayTripScreen from "./DisplayTripScreen";
 import FaceScanScreen from "./FaceScanScreen";
 import DisplayUserProfile from "./DisplayUserProfileScreen";
@@ -21,21 +21,21 @@ const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator<RootStackParamList>();
 
 function MainTabs() {
-  const { isLoggedIn } = useAuth();
+  const {isLoggedIn} = useAuth();
 
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="HomeNav"
       activeColor="#6200ee"
       inactiveColor="#3e2465"
-      barStyle={{ backgroundColor: "#ffffff" }}
+      barStyle={{backgroundColor: "#ffffff"}}
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarLabel: "Home",
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({color}) => (
             <MaterialCommunityIcons
               name="home-outline"
               color={color}
@@ -51,7 +51,7 @@ function MainTabs() {
             component={DisplayUserProfileScreen}
             options={{
               tabBarLabel: "Profile",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
                   name="account-outline"
                   color={color}
@@ -65,7 +65,7 @@ function MainTabs() {
             component={DisplayVehiclesScreen}
             options={{
               tabBarLabel: "Vehicles",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
                   name="car-outline"
                   color={color}
@@ -79,7 +79,7 @@ function MainTabs() {
             component={TripTrackingScreen}
             options={{
               tabBarLabel: "Track Trip",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
                   name="map-marker-path"
                   color={color}
@@ -93,7 +93,7 @@ function MainTabs() {
             component={DisplayTripsScreen}
             options={{
               tabBarLabel: "Trips",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
                   name="map-outline"
                   color={color}
@@ -107,7 +107,7 @@ function MainTabs() {
             component={MQTTClient}
             options={{
               tabBarLabel: "MQTT",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
                   name="network-outline"
                   color={color}
@@ -124,7 +124,7 @@ function MainTabs() {
             component={LoginScreen}
             options={{
               tabBarLabel: "Login",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons name="login" color={color} size={26} />
               ),
             }}
@@ -134,7 +134,7 @@ function MainTabs() {
             component={RegisterScreen}
             options={{
               tabBarLabel: "Register",
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
                   name="account-plus-outline"
                   color={color}
