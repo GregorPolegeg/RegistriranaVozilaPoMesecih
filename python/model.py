@@ -101,7 +101,8 @@ def train_and_evaluate_model(model, train_gen, val_gen, test_images, test_labels
     return history, test_acc
 
 def main(user_id):
-    base_directory = r'python\faces'
+    base_directory = r'faces'
+    base_directory = os.path.abspath(base_directory)
     user_directory = os.path.join(base_directory, user_id)
     unknown_directory = os.path.join(base_directory, 'unknown')
 

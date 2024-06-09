@@ -76,6 +76,7 @@ const LoginWithPicture: React.FC<Props> = ({navigation}) => {
     formData.append("userId", userId);
 
     const uploadUrl = `${PYTHON_URL}/users/uploadImage`;
+    console.log(PYTHON_URL)
 
     try {
       const responseUpload = await axios.post(uploadUrl, formData, {

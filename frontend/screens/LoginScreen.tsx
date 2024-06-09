@@ -45,6 +45,7 @@ const LoginScreen: React.FC<Props> = ({navigation}) => {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <Text style={styles.title}>{API_URL}</Text>
+      <Text style={styles.title}>{API_URL}</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
         style={styles.input}
