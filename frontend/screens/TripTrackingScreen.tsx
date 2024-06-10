@@ -37,7 +37,7 @@ const TripTrackingScreen = () => {
     };
 
     fetchVehicles();
-  }, [token]);
+  }, []);
 
   const startTrip = async () => {
     try {

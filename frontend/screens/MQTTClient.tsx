@@ -21,8 +21,6 @@ const myStorage = {
 };
 
 const getProximityTopic = (latitude: number, longitude: number) => {
-  // Define a function to generate a topic based on the location
-  // For example, use the first two decimal places to create proximity groups
   return `nearby/users/${latitude.toFixed(2)}/${longitude.toFixed(2)}`;
 };
 
@@ -32,16 +30,17 @@ const MQTTClient: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<{ userId: string, message: string, timestamp: Date }[]>([]);
-  const {userId} = useAuth();
+  const { userId } = useAuth();
 
   useEffect(() => {
+    let isMounted = true; // to track component mount status
     (async () => {
-
       const mqttClient = new Client({
         uri: `ws://${KOMAR}:1883/mqtt`,
-        clientId: userId ? userId : 'id',
+        clientId: userId ? userId + "drek" : 'id',
         storage: myStorage,
       });
+
       setClient(mqttClient);
 
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -51,17 +50,20 @@ const MQTTClient: React.FC = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+      if (isMounted) {
+        setLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      }
 
       const proximityTopic = getProximityTopic(location.coords.latitude, location.coords.longitude);
 
-      // Connect the client
       mqttClient.connect()
         .then(() => {
-          setIsConnected(true);
+          if (isMounted) {
+            setIsConnected(true);
+          }
           console.log('Connected to MQTT broker');
           return mqttClient.subscribe(proximityTopic);
         })
@@ -75,22 +77,29 @@ const MQTTClient: React.FC = () => {
       mqttClient.on('messageReceived', (message: Message) => {
         const parsedMessage = JSON.parse(message.payloadString);
         console.log(`Message received: ${message.payloadString}`);
-        setMessages(prevMessages => [...prevMessages, parsedMessage]);
+        if (isMounted) {
+          setMessages(prevMessages => [...prevMessages, parsedMessage]);
+        }
       });
 
       mqttClient.on('connectionLost', (responseObject: { errorCode: number; errorMessage: string }) => {
         if (responseObject.errorCode !== 0) {
           console.log('Connection lost: ' + responseObject.errorMessage);
-          setIsConnected(false);
+          if (isMounted) {
+            setIsConnected(false);
+          }
         }
       });
 
       // Cleanup function to disconnect the client
       return () => {
-        mqttClient.disconnect();
+        isMounted = false;
+        if (mqttClient.isConnected()) {
+          mqttClient.disconnect();
+        }
       };
     })();
-  }, []);
+  }, [userId]);
 
   const sendMessage = async () => {
     console.log(userId);

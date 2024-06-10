@@ -83,7 +83,7 @@ router.post(
 
       const updatedTrip = await prisma.trip.update({
         where: { id: tripId },
-        data: { endTime, distance: totalDistance },
+        data: { endTime, distance: 0.3 },
       });
 
       return res.json(updatedTrip);

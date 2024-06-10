@@ -49,4 +49,4 @@ WORKDIR /app
 ENV PATH="/app/python/venv/bin:$PATH"
 
 # Start Mosquitto, backend, frontend, and Python script
-CMD ["sh", "-c", "mosquitto -c /app/mosquitto/config/mosquitto.conf -d && cd backend && npm start & cd .. & cd frontend && npm run start & cd python && ./venv/bin/python main.py"]
+CMD ["sh", "-c", "mosquitto -c /app/mosquitto/config/mosquitto.conf -d && cd backend && npm start & cd .. & cd frontend && npm run web & cd python && ./venv/bin/python test.py"]

@@ -10,8 +10,15 @@ services:
     command: >
       sh -c "mosquitto -d &&
              cd backend && npm start &
-             cd .. & cd frontend && npm run start &
-             cd python && ./venv/bin/python main.py"
+             cd .. & cd frontend && npm run web &
+             cd python && ./venv/bin/python test.py"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
 
   mosquitto:
     image: eclipse-mosquitto
