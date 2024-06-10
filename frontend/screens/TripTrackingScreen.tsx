@@ -11,7 +11,7 @@ import {
 import * as Location from "expo-location";
 import axios from "axios";
 import { useAuth } from "../AuthContext";
-import { API_URL } from "@env";
+import { API_URL, KOMAR } from "@env";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const TripTrackingScreen = () => {
@@ -22,7 +22,7 @@ const TripTrackingScreen = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    console.log(API_URL)
+    console.log(KOMAR)
     const fetchVehicles = async () => {
       try {
         const response = await axios.get(`${API_URL}/vehicles/user`, {

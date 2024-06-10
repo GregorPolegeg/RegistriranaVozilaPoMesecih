@@ -8,7 +8,9 @@ const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Welcome to the Home Screen {userId}</Text>
+      <Text style={styles.title}>Welcome to our app</Text>
+   
+
     </SafeAreaView>
   );
 };

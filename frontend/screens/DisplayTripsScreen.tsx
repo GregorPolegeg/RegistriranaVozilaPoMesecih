@@ -28,6 +28,7 @@ export default function DisplayTripsScreen() {
   const { userId } = useAuth();
 
   const getTrips = useCallback(async () => {
+    console.log(API_URL)
     if (!hasMore) return;
     try {
       const response = await axios.get(`${API_URL}/trips/user/${userId}`);
@@ -70,9 +71,10 @@ export default function DisplayTripsScreen() {
   };
 
   return (
+   
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={styles.title}>Trips:</Text>
+        <Text style={styles.title}>Trips: {API_URL}</Text>
         <FlatList
           data={trips}
           keyExtractor={(item) => item.id.toString()}

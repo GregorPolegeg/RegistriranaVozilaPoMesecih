@@ -1,14 +1,14 @@
-import React, {useState} from "react";
-import {View, Text, TextInput, Button, StyleSheet, Alert} from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import axios from "axios";
-import {NavigationProp, ParamListBase} from "@react-navigation/native";
-import {API_URL} from "@env";
+import { NavigationProp, ParamListBase } from "@react-navigation/native";
+import { API_URL } from "@env";
 
 interface Props {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const RegisterScreen: React.FC<Props> = ({navigation}) => {
+const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,7 +28,7 @@ const RegisterScreen: React.FC<Props> = ({navigation}) => {
       if (response.status === 201) {
         setSuccess("Registration successful. Please upload a video.");
         setError("");
-        navigation.navigate("FaceScan", {userId: response.data.userId});
+        navigation.navigate("FaceScan", { userId: response.data.userId });
       } else {
         throw new Error("Registration failed");
       }
@@ -67,6 +67,8 @@ const RegisterScreen: React.FC<Props> = ({navigation}) => {
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -75,11 +77,15 @@ const RegisterScreen: React.FC<Props> = ({navigation}) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Register" onPress={handleRegister} />
-      <Button
-        title="Go to Login"
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Register</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.link}
         onPress={() => navigation.navigate("Login")}
-      />
+      >
+        <Text style={styles.linkText}>Go to Login</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -87,14 +93,16 @@ const RegisterScreen: React.FC<Props> = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     padding: 16,
-    backgroundColor: "#f8f8f8",
+    justifyContent: "center",
+    backgroundColor: "#f0f0f0",
   },
   title: {
-    fontSize: 24,
-    marginBottom: 16,
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#333",
     textAlign: "center",
+    marginBottom: 32,
   },
   error: {
     color: "red",
@@ -107,12 +115,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 8,
+    height: 50,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    paddingHorizontal: 16,
     marginBottom: 16,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    height: 50,
+    backgroundColor: "#007BFF",
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  link: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  linkText: {
+    color: "#007BFF",
+    fontSize: 16,
   },
 });
 

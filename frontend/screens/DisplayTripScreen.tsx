@@ -63,6 +63,7 @@ const DisplayTripScreen: React.FC<Props> = ({ route }) => {
   }));
 
   return (
+    
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <MapView
