@@ -4,12 +4,14 @@ services:
   my_application:
     build: .
     ports:
-      - "3001:3001" # Port for backend (or frontend, based on your setup)
-      - "8081:8081" # Port for frontend (or backend, based on your setup)
+      - "3001:3001" # Port for backend (if needed)
+      - "8081:8081" # Port for frontend (if needed)
+      - "5000:5000" # Port for Flask server
     command: >
       sh -c "mosquitto -d &&
              cd backend && npm start &
-             cd .. & cd frontend && npm run start"
+             cd .. & cd frontend && npm run start &
+             cd python && ./venv/bin/python main.py"
 
   mosquitto:
     image: eclipse-mosquitto
